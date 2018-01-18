@@ -5,13 +5,14 @@
 #       With minimum requirements on student distance and number of busses
 
 # Step 1: Grab a set of schools and their corresponding catchment regions
+library(sp)
 library(tidyverse)
 library(rvest)
 library(pdftools)
 library(rvest)
 library(ggmap)
 
-# SOmething to consider if we pursue this project
+# Something to consider if we pursue this project
 
 # # Get link URLs
 # main.page <- read_html(x = "http://www.sd41.bc.ca/elementary-school-addresses/")
@@ -35,9 +36,18 @@ plottedSchool <- ggmap(ArmstrongSchool) + geom_point(aes(x = -122.9083027, y = 4
 # Finish Coordinates, just did Elwell and Fareham, started at Newcombe and 10th
 lon <- c(-122.917433, -122.926703, -122.927647, -122.930436, -122.927475, -122.931520, -122.914654, -122.913066, -122.906414, -122.892510, -122.892682, -122.897660)
 lat <- c(49.225133, 49.232405, 49.231957, 49.234297, 49.235838, 49.239243, 49.249329, 49.247760, 49.247087, 49.240587, 49.235656, 49.235124)
-polyCoords <- as.data.frame(cbind(lon, lat))
+polyCoords <- as.data.frame(cbind(lon, lat)) 
+rownames(polyCoords) = letters[1:dim(polyCoords)[1]]
 
 # Update graph with catchment
 plottedSchool <- plottedSchool + geom_polygon(data = polyCoords, aes(x = lon, y = lat) , alpha = 0.3, colour = "red", fill = "red") 
   
+# Create a bounding box that I can sample from
+coords = cbind(lon, lat)
+P1 = Polygon(coords)
+Ps1 = SpatialPolygons(list(Polygons(list(P1), ID = "a")), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")) # This creates the desired polygon boundary
 
+# Sample n students from the region and add to the plot. Raw data will be used again later for API call
+randomHouses <- spsample(Ps1, n = 10, type = "random")@coords %>% as.data.frame()
+studentsInCatchment <- plottedSchool + geom_point(data = randomHouses, aes(x = x, y = y))
+studentsInCatchment
