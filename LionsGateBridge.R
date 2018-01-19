@@ -21,6 +21,39 @@ Pjan15MHV <- read.xlsx("Monthly_Hourly_Volume 01-01-2015.xls", sheetIndex = 1, r
 Pjan15MHV[1,"X22.00"]
 #Njan15MHV+Pjan15MHV
 
+
+test = read.xlsx("Monthly_Hourly_Volume 01-01-2015.xls", sheetIndex=1)
+firstcol = as.character(test[,3])
+rowstarts = which(firstcol == "0:00")
+cols = 3:27
+rows1 = rowstarts[1] + 1
+rows2 = rowstarts[2] + 1
+rows3 = rowstarts[3] + 1
+
+rowsStart = rowstarts + 1
+rowsEnd = as.character(test[,2])
+
+rowsEnd = which(rowsEnd == "31")
+
+#months = rep(c("01","02","03","04","05","06","07","08","09","10","11","12"),times=13)
+#years = rep(2003:2015,each=12)
+#filenames = paste0("Monthly_Hourly_Volume ",months,"-01-",years,".xls")
+
+month = c("01","02","03","04","05","06","07","08","09","10","11","12")
+year2015 = paste0("Monthly_Hourly_Volume ",month,"-01-2015.xls")
+
+ncol(filenames)
+jan2015 = list()
+for (i in 1:12) {
+  
+  jan2015[[i]]<- read.xlsx(year2015[i], sheetIndex = 1)
+}
+  year2015[1]
+
+
+
+
+
 #Negative direction Monthly hourly volume for Feb. 2015 
 Nfeb15MHV <- read.xlsx("Monthly_Hourly_Volume 02-01-2015.xls", sheetIndex = 1, rowIndex = 54:82, colIndex = 3:27)
 Nfeb15MHV[1,"X22.00"]
@@ -97,3 +130,10 @@ Ndec15MHV[1,"X22.00"]
 #Positive direction Monthly hourly volume for Dec. 2015 
 Pdec15MHV <- read.xlsx("Monthly_Hourly_Volume 12-01-2015.xls", sheetIndex = 1, rowIndex = 103:134, colIndex = 3:27)
 Pdec15MHV[1,"X22.00"]
+
+
+
+
+
+
+
