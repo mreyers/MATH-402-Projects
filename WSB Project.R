@@ -69,3 +69,14 @@ houses$UniLeader <- (houses$uniVals > 0.5)
 houses$normLeader <- (houses$normVals > 0.5)
 houses$logNLeader <- (houses$logNVals > 1.61)
 head(houses)
+studentsAndLeaders <- plottedSchool + geom_point(data = houses, aes(x = x, y=y, col = logNLeader))
+studentsAndLeaders
+
+# Begin building the API scaffolding
+  # First need to cluster points about the leaders that are closest to them so that the API call can handle number of observations
+  centers <- houses %>% filter(logNLeader == TRUE)
+  clusters <- kmeans(houses[, c(1,2)], centers = centers[, c(1,2)])
+  housesClustered <- houses %>% add_column(as.factor(clusters$cluster))
+  clusterPlot <- plottedSchool + geom_point(data = housesClustered, aes(x = x, y = y, col = factor(clusters$cluster), size = 4))
+  clusterPlot  
+  
