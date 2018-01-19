@@ -70,4 +70,30 @@ Naug15MHV[1,"X22.00"]
 Paug15MHV <- read.xlsx("Monthly_Hourly_Volume 08-01-2015.xls", sheetIndex = 1, rowIndex = 103:134, colIndex = 3:27)
 Paug15MHV[1,"X22.00"]
 
-data <- data.frame(Paug15MHV, Naug15MHV, Pjul15MHV, Njul15MHV)
+#Negative direction Monthly hourly volume for Sep. 2015 
+Nsep15MHV <- read.xlsx("Monthly_Hourly_Volume 09-01-2015.xls", sheetIndex = 1, rowIndex = 56:86, colIndex = 3:27)
+Nsep15MHV[1,"X22.00"]
+#Positive direction Monthly hourly volume for Sep. 2015 
+Psep15MHV <- read.xlsx("Monthly_Hourly_Volume 09-01-2015.xls", sheetIndex = 1, rowIndex = 101:131, colIndex = 3:27)
+Psep15MHV[1,"X22.00"]
+
+#Negative direction Monthly hourly volume for Oct. 2015 
+Noct15MHV <- read.xlsx("Monthly_Hourly_Volume 10-01-2015.xls", sheetIndex = 1, rowIndex = 57:88, colIndex = 3:27)
+Noct15MHV[1,"X22.00"]
+#Positive direction Monthly hourly volume for Oct. 2015 
+Poct15MHV <- read.xlsx("Monthly_Hourly_Volume 10-01-2015.xls", sheetIndex = 1, rowIndex = 103:134, colIndex = 3:27)
+Poct15MHV[1,"X22.00"]
+
+#Negative direction Monthly hourly volume for Nov. 2015 
+Nnov15MHV <- read.xlsx("Monthly_Hourly_Volume 11-01-2015.xls", sheetIndex = 1, rowIndex = 56:86, colIndex = 3:27)
+Nnov15MHV[1,"X22.00"]
+#Positive direction Monthly hourly volume for Nov. 2015 
+Pnov15MHV <- read.xlsx("Monthly_Hourly_Volume 11-01-2015.xls", sheetIndex = 1, rowIndex = 101:131, colIndex = 3:27)
+Pnov15MHV[1,"X22.00"]
+
+#Negative direction Monthly hourly volume for Dec. 2015 
+Ndec15MHV <- read.xlsx("Monthly_Hourly_Volume 12-01-2015.xls", sheetIndex = 1, rowIndex = 57:88, colIndex = 3:27)
+Ndec15MHV[1,"X22.00"]
+#Positive direction Monthly hourly volume for Dec. 2015 
+Pdec15MHV <- read.xlsx("Monthly_Hourly_Volume 12-01-2015.xls", sheetIndex = 1, rowIndex = 103:134, colIndex = 3:27)
+Pdec15MHV[1,"X22.00"]
