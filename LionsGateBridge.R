@@ -22,118 +22,77 @@ Pjan15MHV[1,"X22.00"]
 #Njan15MHV+Pjan15MHV
 
 
-test = read.xlsx("Monthly_Hourly_Volume 01-01-2015.xls", sheetIndex=1)
-firstcol = as.character(test[,3])
-rowstarts = which(firstcol == "0:00")
-cols = 3:27
-rows1 = rowstarts[1] + 1
-rows2 = rowstarts[2] + 1
-rows3 = rowstarts[3] + 1
+#test = read.xlsx("Monthly_Hourly_Volume 01-01-2015.xls", sheetIndex=1)
+#firstcol = as.character(test[,3])
+#rowstarts = which(firstcol == "0:00")
 
-rowsStart = rowstarts + 1
-rowsEnd = as.character(test[,2])
+#rows1 = rowstarts[1] + 1
+#rows2 = rowstarts[2] + 1
+#rows3 = rowstarts[3] + 1
 
-rowsEnd = which(rowsEnd == "31")
+#rowsStart = rowstarts + 1
+#End = as.character(test[,2])
+
+#End = which(End == "31")
 
 #months = rep(c("01","02","03","04","05","06","07","08","09","10","11","12"),times=13)
 #years = rep(2003:2015,each=12)
 #filenames = paste0("Monthly_Hourly_Volume ",months,"-01-",years,".xls")
 
 month = c("01","02","03","04","05","06","07","08","09","10","11","12")
-year2015 = paste0("Monthly_Hourly_Volume ",month,"-01-2015.xls")
+yearini2015 = paste0("Monthly_Hourly_Volume ",month,"-01-2015.xls")
 
-ncol(filenames)
-jan2015 = list()
-for (i in 1:12) {
-  
-  jan2015[[i]]<- read.xlsx(year2015[i], sheetIndex = 1)
+#storing all months of 2015 in a list 
+range  = 1:12
+year2015 = list()
+for (i in range) {
+  year2015[[i]]<- read.xlsx(yearini2015[i], sheetIndex = 1)
 }
-  year2015[1]
+
+str(year2015)
+View(year2015[[1]])
+
+#finding the first and last row for each part (roadway, negative and positive ways)
+rowsStart = list()
+rowsEnd = list()
+for (i in 1:12){
+  firstcol = as.character(year2015[[i]][,3])
+  rowsStart[[i]] = which(firstcol == "0:00")
+  rowsStart[[i]] = rowsStart[[i]]+1
+  firstcol = as.character(year2015[[i]][,3])
+  rowsEnd[[i]] = rowsStart[[i]]+30
+}
+firstcol = as.character(year2015[[1]][,3])
 
 
+#test for extracting each part
+cols = 3:27
+roadway1 = year2015[[1]][rowsStart[[1]][1]:rowsEnd[[1]][1],cols] 
 
+colnames(roadway1) <- c("midnight", "1 am", "2 am", "3 am", "4 am", "5 am", "6 am", "7 am", "8 am", "9 am", "10 am", 
+                        "11 am", "noon", "1 pm", "2 pm", "3 pm", "4 pm", "5 pm", "6 pm", "7 pm", "8 pm", "9 pm", "10 pm", 
+                        "11 pm", "Total" )
+View(roadway1)
 
+#initialize 3 parts
+roadway15 = list()
+neg15 = list()
+pos15 = list()
 
-#Negative direction Monthly hourly volume for Feb. 2015 
-Nfeb15MHV <- read.xlsx("Monthly_Hourly_Volume 02-01-2015.xls", sheetIndex = 1, rowIndex = 54:82, colIndex = 3:27)
-Nfeb15MHV[1,"X22.00"]
-#Positive direction Monthly hourly volume for Feb 2015 
-Pfeb15MHV <- read.xlsx("Monthly_Hourly_Volume 02-01-2015.xls", sheetIndex = 1, rowIndex = 97:125, colIndex = 3:27)
-Pfeb15MHV[1,"X22.00"]
-
-#Negative direction Monthly hourly volume for March 2015 
-Nmar15MHV <- read.xlsx("Monthly_Hourly_Volume 03-01-2015.xls", sheetIndex = 1, rowIndex = 57:87, colIndex = 3:27)
-Nmar15MHV[1,"X22.00"]
-#Positive direction Monthly hourly volume for March 2015 
-Pmar15MHV <- read.xlsx("Monthly_Hourly_Volume 03-01-2015.xls", sheetIndex = 1, rowIndex = 103:134, colIndex = 3:27)
-Pmar15MHV[1,"X22.00"]
-
-#Negative direction Monthly hourly volume for Apr. 2015 
-Napr15MHV <- read.xlsx("Monthly_Hourly_Volume 04-01-2015.xls", sheetIndex = 1, rowIndex = 56:86, colIndex = 3:27)
-Napr15MHV[1,"X22.00"]
-#Positive direction Monthly hourly volume for Apr. 2015 
-Papr15MHV <- read.xlsx("Monthly_Hourly_Volume 04-01-2015.xls", sheetIndex = 1, rowIndex = 101:131, colIndex = 3:27)
-Papr15MHV[1,"X22.00"]
-
-#Negative direction Monthly hourly volume for May 2015 
-Nmay15MHV <- read.xlsx("Monthly_Hourly_Volume 05-01-2015.xls", sheetIndex = 1, rowIndex = 57:87, colIndex = 3:27)
-Nmay15MHV[1,"X22.00"]
-#Positive direction Monthly hourly volume for May 2015 
-Pmay15MHV <- read.xlsx("Monthly_Hourly_Volume 05-01-2015.xls", sheetIndex = 1, rowIndex = 103:134, colIndex = 3:27)
-Pmay15MHV[1,"X22.00"]
-
-#Negative direction Monthly hourly volume for June 2015 
-Njun15MHV <- read.xlsx("Monthly_Hourly_Volume 06-01-2015.xls", sheetIndex = 1, rowIndex = 56:86, colIndex = 3:27)
-Njun15MHV[29,"X22.00"]
-#Positive direction Monthly hourly volume for June 2015 
-Pjun15MHV <- read.xlsx("Monthly_Hourly_Volume 06-01-2015.xls", sheetIndex = 1, rowIndex = 101:131, colIndex = 3:27)
-Pjun15MHV[29,"X22.00"]
-
-#Negative direction Monthly hourly volume for July 2015 
-Njul15MHV <- read.xlsx("Monthly_Hourly_Volume 07-01-2015.xls", sheetIndex = 1, rowIndex = 57:88, colIndex = 3:27)
-Njul15MHV[1,"X22.00"]
-#Positive direction Monthly hourly volume for July 2015 
-Pjul15MHV <- read.xlsx("Monthly_Hourly_Volume 07-01-2015.xls", sheetIndex = 1, rowIndex = 103:134, colIndex = 3:27)
-Pjul15MHV[1,"X22.00"]
-
-#Negative direction Monthly hourly volume for Aug. 2015 
-Naug15MHV <- read.xlsx("Monthly_Hourly_Volume 08-01-2015.xls", sheetIndex = 1, rowIndex = 57:88, colIndex = 3:27)
-Naug15MHV[1,"X22.00"]
-#Positive direction Monthly hourly volume for Aug. 2015 
-Paug15MHV <- read.xlsx("Monthly_Hourly_Volume 08-01-2015.xls", sheetIndex = 1, rowIndex = 103:134, colIndex = 3:27)
-Paug15MHV[1,"X22.00"]
-
-#Negative direction Monthly hourly volume for Sep. 2015 
-Nsep15MHV <- read.xlsx("Monthly_Hourly_Volume 09-01-2015.xls", sheetIndex = 1, rowIndex = 56:86, colIndex = 3:27)
-Nsep15MHV[1,"X22.00"]
-#Positive direction Monthly hourly volume for Sep. 2015 
-Psep15MHV <- read.xlsx("Monthly_Hourly_Volume 09-01-2015.xls", sheetIndex = 1, rowIndex = 101:131, colIndex = 3:27)
-Psep15MHV[1,"X22.00"]
-
-#Negative direction Monthly hourly volume for Oct. 2015 
-Noct15MHV <- read.xlsx("Monthly_Hourly_Volume 10-01-2015.xls", sheetIndex = 1, rowIndex = 57:88, colIndex = 3:27)
-Noct15MHV[1,"X22.00"]
-#Positive direction Monthly hourly volume for Oct. 2015 
-Poct15MHV <- read.xlsx("Monthly_Hourly_Volume 10-01-2015.xls", sheetIndex = 1, rowIndex = 103:134, colIndex = 3:27)
-Poct15MHV[1,"X22.00"]
-
-#Negative direction Monthly hourly volume for Nov. 2015 
-Nnov15MHV <- read.xlsx("Monthly_Hourly_Volume 11-01-2015.xls", sheetIndex = 1, rowIndex = 56:86, colIndex = 3:27)
-Nnov15MHV[1,"X22.00"]
-#Positive direction Monthly hourly volume for Nov. 2015 
-Pnov15MHV <- read.xlsx("Monthly_Hourly_Volume 11-01-2015.xls", sheetIndex = 1, rowIndex = 101:131, colIndex = 3:27)
-Pnov15MHV[1,"X22.00"]
-
-#Negative direction Monthly hourly volume for Dec. 2015 
-Ndec15MHV <- read.xlsx("Monthly_Hourly_Volume 12-01-2015.xls", sheetIndex = 1, rowIndex = 57:88, colIndex = 3:27)
-Ndec15MHV[1,"X22.00"]
-#Positive direction Monthly hourly volume for Dec. 2015 
-Pdec15MHV <- read.xlsx("Monthly_Hourly_Volume 12-01-2015.xls", sheetIndex = 1, rowIndex = 103:134, colIndex = 3:27)
-Pdec15MHV[1,"X22.00"]
-
-
-
-
+for (i in range){
+  roadway15[[i]] = year2015[[i]][rowsStart[[i]][1]:rowsEnd[[i]][1],cols]
+  colnames(roadway15[[i]]) <- c("midnight", "1 am", "2 am", "3 am", "4 am", "5 am", "6 am", "7 am", "8 am", "9 am", "10 am", 
+                          "11 am", "noon", "1 pm", "2 pm", "3 pm", "4 pm", "5 pm", "6 pm", "7 pm", "8 pm", "9 pm", "10 pm", 
+                          "11 pm", "Total" )
+  neg15[[i]] = year2015[[i]][rowsStart[[i]][2]:rowsEnd[[i]][2],cols]
+  colnames(neg15[[i]]) <- c("midnight", "1 am", "2 am", "3 am", "4 am", "5 am", "6 am", "7 am", "8 am", "9 am", "10 am", 
+                            "11 am", "noon", "1 pm", "2 pm", "3 pm", "4 pm", "5 pm", "6 pm", "7 pm", "8 pm", "9 pm", "10 pm", 
+                            "11 pm", "Total" )
+  pos15[[i]] = year2015[[i]][rowsStart[[i]][3]:rowsEnd[[i]][3],cols]
+  colnames(pos15[[i]]) <- c("midnight", "1 am", "2 am", "3 am", "4 am", "5 am", "6 am", "7 am", "8 am", "9 am", "10 am", 
+                            "11 am", "noon", "1 pm", "2 pm", "3 pm", "4 pm", "5 pm", "6 pm", "7 pm", "8 pm", "9 pm", "10 pm", 
+                            "11 pm", "Total" )
+} 
 
 
 
