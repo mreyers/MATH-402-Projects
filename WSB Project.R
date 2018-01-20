@@ -42,13 +42,20 @@ rownames(polyCoords) = letters[1:dim(polyCoords)[1]]
 plottedSchool <- plottedSchool + geom_polygon(data = polyCoords, aes(x = lon, y = lat) , alpha = 0.3, colour = "red", fill = "red") 
   
 # Create a bounding box that I can sample from
-coords = cbind(lon, lat)
-P1 = Polygon(coords)
-Ps1 = SpatialPolygons(list(Polygons(list(P1), ID = "a")), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")) # This creates the desired polygon boundary
+coords <- cbind(lon, lat)
+P1 <- Polygon(coords)
+Ps1 <- SpatialPolygons(list(Polygons(list(P1), ID = "a")), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")) # This creates the desired polygon boundary
+
+# Create a bouding box for the residential area only for more reasonable point generation
+lonRes <- c(-122.917433, -122.926703, -122.908289, -122.892603, -122.892682, -122.897660)
+latRes <- c(49.225133, 49.232405, 49.242508, 49.237703, 49.235656, 49.235124)
+coordsRes <- cbind(lonRes, latRes)
+P2 <- Polygon(coordsRes)
+Ps2 <- SpatialPolygons(list(Polygons(list(P2), ID = "a")), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")) # This creates the desired polygon boundary
 
 # Sample n students from the region and add to the plot. Raw data will be used again later for API call
 n = 10
-randomHouses <- spsample(Ps1, n = n, type = "random")@coords %>% as.data.frame()
+randomHouses <- spsample(Ps2, n = n, type = "random")@coords %>% as.data.frame() # Use Ps2 as this is a more realistic area for people to be distributed. The boundary for the region still holds, however
 studentsInCatchment <- plottedSchool + geom_point(data = randomHouses, aes(x = x, y = y))
 studentsInCatchment
 
