@@ -144,3 +144,45 @@ cleaner <- function(df){
 holder <- loadAndSplit("Bridge Data/MV03 - Site Lions Gate P-15-1NS - NY on 01-01-2016.xls")
 cleanedUp <- cleaner(holder[[1]])
 head(cleanedUp)
+
+# Create a loop to read in all the data and clean it up
+months <- c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
+years <- as.character(2005:2016)
+allData <- list()
+for(i in months){
+  for( j in years){
+    file_name_1 <- paste0("Bridge Data/MV03 - Site Lions Gate - P-15-1NS - N on ", i, "-01-", j, ".xls")
+    file_name_2 <- paste0("Bridge Data/MV03 - Site Lions Gate P-15-1NS - NY on ", i, "-01-", j, ".xls")
+    counter <- 0
+    if(file.exists(file_name_1)){
+      #print("File1")
+      temp <- loadAndSplit(file_name_1)
+      counter <- 1
+    }
+    else if(file.exists(file_name_2)){
+      #print("File2")
+      temp <- loadAndSplit(file_name_2)
+      counter <- 1
+    }
+    # To be efficient, save at start of list. Done by basic transform
+    if(counter == 1){
+      row <- as.numeric(j) %% as.numeric(years[1])
+      col <- as.numeric(i)
+      #print(row)
+      #print(col)
+      allData[[row*12 + col]] <- temp
+      allData[[row*12 + col]][[1]] <- allData[[row*12 + col]][[1]] %>% cleaner()
+      allData[[row*12 + col]][[2]] <- allData[[row*12 + col]][[2]] %>% cleaner()
+      allData[[row*12 + col]][[3]] <- allData[[row*12 + col]][[3]] %>% cleaner()
+    }
+    
+  }
+}
+# Warnings generated are NA coercion, fine as we omit NAs
+
+
+# AllData now contains desired data sets, access desired date in order according to following:
+# AllData[[file# in order]][[1 = Total, 2 = Neg, 3 = Pos]]
+  # file# = (1 first file, 2 second file, 3... in chronological order)
+# Sample: AllData[[13]][2] gives the 13th file (starting from 2005, so this is somewhere in 2006) and gets me the Neg traffic
+
