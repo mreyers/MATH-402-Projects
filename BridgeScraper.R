@@ -18,8 +18,6 @@ months <- c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "1
 # Create a double loop that iterates over each of the links, should cause me to download
 for( i in 1:length(years)){
   for( j in 1:12){
-    print(i) 
-    print(years[i])
     if( i <= 7){
       browseURL(url = paste0("http://www.th.gov.bc.ca/trafficdata/tradas/reports/AllYears/", years[i], "/", months[j],
                          "/MV03/MV03%20-%20Site%20Lions%20Gate%20-%20P-15-1NS%20-%20N%20on%20", months[j], "-01-", years[i], ".xls"))
