@@ -193,8 +193,8 @@ file_number <- function(month, year){
   for(i in months){
     for( j in years){
       if (as.numeric(i) == month & as.numeric(j) == year){
-        print(month)
-        print("yes")
+        #print(month)
+        
         file_name_1 <- paste0("Bridge Data/MV03 - Site Lions Gate - P-15-1NS - N on ", i, "-01-", j, ".xls")
         file_name_2 <- paste0("Bridge Data/MV03 - Site Lions Gate P-15-1NS - NY on ", i, "-01-", j, ".xls")
         counter <- 0
