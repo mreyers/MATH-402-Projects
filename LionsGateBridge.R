@@ -147,7 +147,7 @@ head(cleanedUp)
 
 # Create a loop to read in all the data and clean it up
 months <- c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
-years <- as.character(2005:2016)
+years <- as.character(2006:2016)
 allData <- list()
 for(i in months){
   for( j in years){
@@ -186,3 +186,41 @@ for(i in months){
   # file# = (1 first file, 2 second file, 3... in chronological order)
 # Sample: AllData[[13]][2] gives the 13th file (starting from 2005, so this is somewhere in 2006) and gets me the Neg traffic
 
+
+#A function that returns the file number for a specific year and a month (based on ur code)
+filenum <- 0
+file_number <- function(month, year){
+  for(i in months){
+    for( j in years){
+      if (as.numeric(i) == month & as.numeric(j) == year){
+        print(month)
+        print("yes")
+        file_name_1 <- paste0("Bridge Data/MV03 - Site Lions Gate - P-15-1NS - N on ", i, "-01-", j, ".xls")
+        file_name_2 <- paste0("Bridge Data/MV03 - Site Lions Gate P-15-1NS - NY on ", i, "-01-", j, ".xls")
+        counter <- 0
+        if(file.exists(file_name_1)){counter <- 1}
+        else if(file.exists(file_name_2)){counter <- 1}
+        
+        if(counter == 1){
+          print(row)
+          print(col)
+          row <- as.numeric(j) %% as.numeric(years[1])
+          col <- as.numeric(i)
+          filenum <- row*12 + col
+          #print(filenum)
+          #print("return here:")
+          return(filenum)
+        } 
+      }
+    }
+    
+  }
+  
+}
+
+#if we start from 2006 (instead of 2005) the last file will be dec. 2016 
+#in my computer the file number for dec. 2016 is 132, here is a sample to check: 
+
+
+#file_number(12,2016)
+#allData[[132]][1]
