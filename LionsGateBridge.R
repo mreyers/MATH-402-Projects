@@ -186,3 +186,34 @@ for(i in months){
   # file# = (1 first file, 2 second file, 3... in chronological order)
 # Sample: AllData[[13]][2] gives the 13th file (starting from 2005, so this is somewhere in 2006) and gets me the Neg traffic
 
+# API Work will be for the actual project to give better results w.r.t congestion
+  # Busses of interest for Lions Gate bridge are the 240 and 250
+  # Set up the API calls for each of these routes and stops
+    # Bus stops:
+      # City side: 51475 (routes 240, 246, 250)
+      # North Side: 54440 (routes 240, 246), 54411 (route 250)
+routes <- as.character(c(240, 246, 250))
+stops <- as.character(c(51475, 54440, 54411))
+
+# Structure of API call: http://api.translink.ca/rttiapi/v1/buses?apikey=[key]&stopNo=stops&routeNo=routes
+  # From this I have to extract the longitude and latitude
+
+# Data is XML
+library(XML)
+key <- "BVGkIJET0Q9WEvvmvQrq"
+testCallURL <- paste0("http://api.translink.ca/rttiapi/v1/buses?apikey=", key, "&stopNo=", stops[1], "&routeNo=", routes[1])
+testOutput <- xmlTreeParse(testCallURL)
+testXML <- xmlRoot(testOutput)
+holder <- unlist(testXML[[1]]) %>% rbind(unlist(testXML[[2]])) %>% as.data.frame() %>% select(children.VehicleNo.children.text.value,
+                                                                                              children.Direction.children.text.value,
+                                                                                              children.Latitude.children.text.value,
+                                                                                              children.Longitude.children.text.value,
+                                                                                              children.RecordedTime.children.text.value
+                                                                                              )
+names(holder) <- c("Vehicle Num", "Direction", "Lat", "Long", "Time")
+head(holder)
+# Assume for now it is possible to estimate congestion via API for any given point in the day
+# Above code is proof of concept that the API can be accessed
+# Time and position data, in combo with maps API, will allow us to calculate average speed and therefore a measure of congestion
+# Data design is feasible, question remaining is how our optimization will work
+# Discuss with Tamon
