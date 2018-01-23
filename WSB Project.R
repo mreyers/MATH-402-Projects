@@ -81,9 +81,12 @@ studentsAndLeaders
 
 # Begin building the API scaffolding
   # First need to cluster points about the leaders that are closest to them so that the API call can handle number of observations
+  # Use KNN as we get fixed start points based on the below train/test method
+  library(class)
   centers <- houses %>% filter(logNLeader == TRUE)
-  clusters <- kmeans(houses[, c(1,2)], centers = centers[, c(1,2)])
-  housesClustered <- houses %>% add_column(as.factor(clusters$cluster))
-  clusterPlot <- plottedSchool + geom_point(data = housesClustered, aes(x = x, y = y, col = factor(clusters$cluster), size = 4))
+  cl <- as.factor(1:length(centers$x))
+  clusters <- knn(train = centers[, 1:2], test = houses[, 1:2], cl = cl, k = 1)
+  housesClustered <- houses %>% add_column(as.factor(clusters))
+  clusterPlot <- plottedSchool + geom_point(data = housesClustered, aes(x = x, y = y, col = factor(clusters), size = 4, shape = logNLeader))
   clusterPlot  
   

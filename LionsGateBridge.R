@@ -141,13 +141,13 @@ cleaner <- function(df){
 }
 
 # Example usage
-holder <- loadAndSplit("Bridge Data/MV03 - Site Lions Gate P-15-1NS - NY on 01-01-2016.xls")
+holder <- loadAndSplit("Bridge Data/MV03 - Site Lions Gate - P-15-1NS - N on 01-01-2005.xls")
 cleanedUp <- cleaner(holder[[1]])
 head(cleanedUp)
 
 # Create a loop to read in all the data and clean it up
 months <- c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
-years <- as.character(2005:2016)
+years <- as.character(2006:2016)
 allData <- list()
 for(i in months){
   for( j in years){
@@ -217,3 +217,33 @@ head(holder)
 # Time and position data, in combo with maps API, will allow us to calculate average speed and therefore a measure of congestion
 # Data design is feasible, question remaining is how our optimization will work
 # Discuss with Tamon
+
+#A function that returns the file number for a specific year and a month (based on ur code)
+filenum <- 0
+file_number <- function(month, year){
+  for(i in months){
+    for( j in years){
+      if (as.numeric(i) == month & as.numeric(j) == year){
+        #print(month)
+        
+        file_name_1 <- paste0("Bridge Data/MV03 - Site Lions Gate - P-15-1NS - N on ", i, "-01-", j, ".xls")
+        file_name_2 <- paste0("Bridge Data/MV03 - Site Lions Gate P-15-1NS - NY on ", i, "-01-", j, ".xls")
+        counter <- 0
+        if(file.exists(file_name_1)){counter <- 1}
+        else if(file.exists(file_name_2)){counter <- 1}
+        
+        if(counter == 1){
+          #print(row)
+          #print(col)
+          row <- as.numeric(j) %% as.numeric(years[1])
+          col <- as.numeric(i)
+          filenum <- row*12 + col
+          #print(filenum)
+          #print("return here:")
+          return(filenum)
+        } 
+      }
+    }
+    
+  }
+  
