@@ -141,7 +141,7 @@ cleaner <- function(df){
 }
 
 # Example usage
-holder <- loadAndSplit("MV03 - Site Lions Gate - P-15-1NS - N on 01-01-2005.xls")
+holder <- loadAndSplit("Bridge Data/MV03 - Site Lions Gate - P-15-1NS - N on 01-01-2005.xls")
 cleanedUp <- cleaner(holder[[1]])
 head(cleanedUp)
 
