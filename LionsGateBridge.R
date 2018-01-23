@@ -202,8 +202,8 @@ file_number <- function(month, year){
         else if(file.exists(file_name_2)){counter <- 1}
         
         if(counter == 1){
-          print(row)
-          print(col)
+          #print(row)
+          #print(col)
           row <- as.numeric(j) %% as.numeric(years[1])
           col <- as.numeric(i)
           filenum <- row*12 + col
