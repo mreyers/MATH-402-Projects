@@ -185,7 +185,7 @@ for(i in months){
 # AllData[[file# in order]][[1 = Total, 2 = Neg, 3 = Pos]]
   # file# = (1 first file, 2 second file, 3... in chronological order)
 # Sample: AllData[[13]][2] gives the 13th file (starting from 2005, so this is somewhere in 2006) and gets me the Neg traffic
-
+allData[[130]][[1]]
 #################### API WORK BUT ITS A LITTLE OUT OF ORDER, WORKS THOUGH #########################
 # API Work will be for the actual project to give better results w.r.t congestion
   # Busses of interest for Lions Gate bridge are the 240 and 250
