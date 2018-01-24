@@ -202,17 +202,78 @@ stops <- as.character(c(51475, 54440, 54411))
 # Data is XML
 library(XML)
 key <- "BVGkIJET0Q9WEvvmvQrq"
-testCallURL <- paste0("http://api.translink.ca/rttiapi/v1/buses?apikey=", key, "&stopNo=", stops[1], "&routeNo=", routes[1])
-testOutput <- xmlTreeParse(testCallURL)
-testXML <- xmlRoot(testOutput)
-holder <- unlist(testXML[[1]]) %>% rbind(unlist(testXML[[2]])) %>% as.data.frame() %>% select(children.VehicleNo.children.text.value,
-                                                                                              children.Direction.children.text.value,
-                                                                                              children.Latitude.children.text.value,
-                                                                                              children.Longitude.children.text.value,
-                                                                                              children.RecordedTime.children.text.value
-                                                                                              )
-names(holder) <- c("Vehicle Num", "Direction", "Lat", "Long", "Time")
-head(holder)
+
+# Make a function that will be used in automated server pinging
+rttiAPICaller <- function(key, stop, route){
+  key <- key
+  URL <- paste0("http://api.translink.ca/rttiapi/v1/buses?apikey=", key, "&stopNo=", stop, "&routeNo=", route)
+  Output <- xmlTreeParse(URL)
+  testXML <- xmlRoot(Output)
+  # Loop the vehicles so we unlist the desired number (some hours there are 5 busses, others there are 2)
+  for(i in 1:length(testXML)){
+    if(i == 1){
+      holder <- unlist(testXML[[1]])
+    }
+    else{
+      holder <- holder %>% rbind(unlist(testXML[[i]]))
+    }
+  }
+  # Rename from XML naming scheme and select only requisite variables
+  holder <- holder %>% as.data.frame() %>% select(children.VehicleNo.children.text.value,
+                                                  children.Direction.children.text.value,
+                                                  children.Latitude.children.text.value,
+                                                  children.Longitude.children.text.value,
+                                                  children.RecordedTime.children.text.value)
+  names(holder) <- c("Vehicle Num", "Direction", "Lat", "Long", "Time") 
+  holder$Date <- Sys.Date()
+  return(holder)
+}
+
+iterator <- function(key){
+  Sys.sleep(150) # Sleep for 2.5 minutes so data can refresh on server
+  R240S51475 <- rttiAPICaller(key, "51475", "240")
+  R246S51475 <- rttiAPICaller(key, "51475", "246")
+  R250S51475 <- rttiAPICaller(key, "51475", "250")
+  R240S54440 <- rttiAPICaller(key, "54440", "240")
+  R246S54440 <- rttiAPICaller(key, "54440", "246")
+  R250S54411 <- rttiAPICaller(key, "54411", "250")
+  return(list(R240S51475,
+              R246S51475,
+              R250S51475,
+              R240S54440,
+              R246S54440,
+              R250S54411))
+}
+
+############################
+##### CALLING THE ITERATOR #####
+############################
+iter = 1
+R240S51475 <- list() # Van to NVan
+R246S51475 <- list() # Van to NVan
+R250S51475 <- list() # Van to NVan
+R240S54440 <- list() # NVan to Van
+R246S54440 <- list() # NVan to Van
+R250S54411 <- list() # NVan to Van
+
+while( iter < 3){
+  tempResult <- iterator("BVGkIJET0Q9WEvvmvQrq")
+  R240S51475[[iter]] <- tempResult[1]
+  R246S51475[[iter]] <- tempResult[2]
+  R250S51475[[iter]] <- tempResult[3]
+  R240S54440[[iter]] <- tempResult[4]
+  R246S54440[[iter]] <- tempResult[5]
+  R250S54411[[iter]] <- tempResult[6]
+  iter = iter + 1
+}
+
+
+# Other API call: Real time data
+  # This one has a security error so setup the loop for the first one then this
+#secondTestURL <- paste0("https://rtdsapi.translink.ca/rtdsapi/v1/LiveDataAtPoint?apikey=", key, "&x=-123.04550170898438&y=49.23194729854554&z=12&types=6")
+#testOutput2 <- xmlTreeParse(secondTestURL)
+#testXML2 <- xmlRoot(testOutput2)
+
 ########################################################################
 
 # Assume for now it is possible to estimate congestion via API for any given point in the day
