@@ -90,3 +90,10 @@ studentsAndLeaders
   clusterPlot <- plottedSchool + geom_point(data = housesClustered, aes(x = x, y = y, col = factor(clusters), size = 4, shape = logNLeader))
   clusterPlot  
   
+  
+  
+# Testing the ile Neggyn found on the data custodian
+library(jsonlite)
+schoolBoundaries <- fromJSON("elementary_school_boundaries.json")
+View(schoolBoundaries)
+# Looks like it will do what we want, figure out how to read and plot the boundary coordinates
