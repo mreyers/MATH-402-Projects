@@ -205,7 +205,6 @@ key <- "BVGkIJET0Q9WEvvmvQrq"
 
 # Make a function that will be used in automated server pinging
 rttiAPICaller <- function(key, stop, route){
-  key <- key
   URL <- paste0("http://api.translink.ca/rttiapi/v1/buses?apikey=", key, "&stopNo=", stop, "&routeNo=", route)
   Output <- xmlTreeParse(URL)
   testXML <- xmlRoot(Output)
@@ -228,6 +227,29 @@ rttiAPICaller <- function(key, stop, route){
   holder$Date <- Sys.Date()
   return(holder)
 }
+# Valid Origin and destination: Vancouver, Taylor Way, Capilano Road
+googleAPICaller <- function(key, origin, dest){
+  VanLocation <- c(49.290616, -123.130654)
+  TaylorWay   <- c(49.336705, -123.134838)
+  CapilanoRD  <- c(49.331790, -123.115065)
+  if(origin == "Vancouver" & dest == "Taylor Way"){
+    VanToTaylor <- paste0("https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=", VanLocation[1], ",", VanLocation[2], "&destinations=", TaylorWay[1], ",", TaylorWay[2], "&key=", key)
+    data <- fromJSON(VanTOTaylor)
+  }
+  else if(origin == "Vancouver" & dest == "Capilano Road"){
+    VanToCap    <- paste0("https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=", VanLocation[1], ",", VanLocation[2], "&destinations=", CapilanoRD[1], ",", CapilanoRD[2], "&key=", key)
+    data <- fromJSON(VanToCap)
+  }
+  else if(origin == "Taylor Way" & dest == "Vancouver"){
+    TaylorToVan <- paste0("https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=", TaylorWay[1], ",", TaylorWay[2], "&destinations=", VanLocation[1], ",", VanLocation[2], "&key=", key)
+    data <- fromJSON(TaylorToVan)
+  }
+  else if(origin == "Capilano Road" & dest == "Vancouver"){
+    CapToVan    <- paste0("https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=", CapilanoRD[1], ",", CapilanoRD[2], "&destinations=", VanLocation[1], ",", VanLocation[2], "&key=", key)
+    data <- fromJSON(CapToVan)
+  }
+  return(data)
+}
 
 iterator <- function(key){
   Sys.sleep(150) # Sleep for 2.5 minutes so data can refresh on server
@@ -248,6 +270,11 @@ iterator <- function(key){
 ############################
 ##### CALLING THE ITERATOR #####
 ############################
+library(jsonlite)
+googleKey <- "AIzaSyAZt5UyUNZVt9xxhppR2dtEsxqy-AkW1N4"
+testGoogle <- googleAPICaller(googleKey, "Vancouver", "Capilano Road")
+
+
 iter = 1
 R240S51475 <- list() # Van to NVan
 R246S51475 <- list() # Van to NVan
