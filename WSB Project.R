@@ -11,6 +11,7 @@ library(rvest)
 library(pdftools)
 library(rvest)
 library(ggmap)
+library(rgdal)
 
 # Something to consider if we pursue this project
 
@@ -92,8 +93,50 @@ studentsAndLeaders
   
   
   
-# Testing the ile Neggyn found on the data custodian
+# Testing the file Neggyn found on the data custodian, url = http://data.vancouver.ca/datacatalogue/publicPlaces.htm
 library(jsonlite)
 schoolBoundaries <- fromJSON("elementary_school_boundaries.json")
 View(schoolBoundaries)
-# Looks like it will do what we want, figure out how to read and plot the boundary coordinates
+
+# x and y coordinates are separated weirdly in the read data
+# x are approx 49000, y are approx 54000. Since coord pairs, mid point is the split I want. Can be achieved by a triple index
+  #schoolBoundaries$features$geometry$coordinates[[1]][, , 1]
+  #schoolBoundaries$features$geometry$coordinates[[1]][, , 2]
+
+
+
+######## Testing stuff for conversion of coordinate systems: Status = Working #########
+# If the function breaks visit: http://www.alex-singleton.com/R-Tutorial-Materials/7-converting-coordinates.pdf
+
+# Create a function that takes the jsonData and a given school and outputs its catchment map and bounding polygon. Will throw error for invalid school at the moment
+schoolCatch <- function(jsonData, schoolName){
+  index <- which(jsonData$features$properties$NAME == schoolName) # Select the school set of coords 
+  Easting <- jsonData$features$geometry$coordinates[[index]][, , 1] # Separate to x and y
+  Northing<- jsonData$features$geometry$coordinates[[index]][, , 2]
+  ID <- data.frame(1:length(Easting)) # ID var for later
+  coords <- cbind(Easting, Northing) %>% as.data.frame()
+  catch_SP <- SpatialPointsDataFrame(coords, data = ID, proj4string = CRS("+init=EPSG:26910")) # init = EPSG:26910 is a region specific identifier for coord system
+  catch_LL <- spTransform(catch_SP, CRS("+init=epsg:4326")) # This one is general for long-lat conversions
+  final_DF <- as.data.frame(catch_LL@coords)
+  names(final_DF) <- c("Longitude", "Latitude")
+  return(final_DF) # Return the now long-lat coordinates
+}
+
+# Example usage where testPlot is already the map centered at Charles Dickens
+gmap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14, maptype = "hybrid")
+testPlot <- ggmap(gmap) + geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none")
+
+
+charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
+charlesDickensTest
+testCharles <- testPlot + geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red")
+
+# Generate the sample data of students for the region
+P3 <- Polygon(charlesDickensTest)
+Ps3 <- SpatialPolygons(list(Polygons(list(P3), ID = "a")), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")) # This creates the desired polygon boundary
+m = 15
+randomHousesNew <- spsample(Ps3, n = m, type = "random")@coords %>% as.data.frame() # Use Ps2 as this is a more realistic area for people to be distributed. The boundary for the region still holds, however
+
+# Plot it all together
+studentsInCharles <- testCharles + geom_point(data = randomHousesNew, aes(x = x, y = y))
+studentsInCharles
