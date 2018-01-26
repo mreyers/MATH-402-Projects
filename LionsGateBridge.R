@@ -99,8 +99,6 @@ for (i in range){
 ####################################################
 
 library(readxl)
-library(XLConnect)
-library(XLConnectJars)
 library(tidyverse)
 
 # Need to create a function to read in and process into appropriate files
@@ -185,7 +183,7 @@ for(i in months){
 # AllData[[file# in order]][[1 = Total, 2 = Neg, 3 = Pos]]
   # file# = (1 first file, 2 second file, 3... in chronological order)
 # Sample: AllData[[13]][2] gives the 13th file (starting from 2005, so this is somewhere in 2006) and gets me the Neg traffic
-allData[[130]][[1]]
+
 #################### API WORK BUT ITS A LITTLE OUT OF ORDER, WORKS THOUGH #########################
 # API Work will be for the actual project to give better results w.r.t congestion
   # Busses of interest for Lions Gate bridge are the 240 and 250
@@ -217,15 +215,28 @@ rttiAPICaller <- function(key, stop, route){
       holder <- holder %>% rbind(unlist(testXML[[i]]))
     }
   }
+  if(!exists("holder") | is.null(holder)){
+    # No busses running at this time
+    result <- data.frame()
+    result$VehicleNum <- NA
+    result$Direction <- NA
+    result$Lat <- NA
+    result$Long <- NA
+    result$Time <- NA
+    result$Date <- Sys.Date()
+    return(result)
+  }
+  else{
   # Rename from XML naming scheme and select only requisite variables
-  holder <- holder %>% as.data.frame() %>% select(children.VehicleNo.children.text.value,
+  holder <- holder %>% as.data.frame(row.names = 1:dim(holder)[1]) %>% select(children.VehicleNo.children.text.value,
                                                   children.Direction.children.text.value,
                                                   children.Latitude.children.text.value,
                                                   children.Longitude.children.text.value,
                                                   children.RecordedTime.children.text.value)
-  names(holder) <- c("Vehicle Num", "Direction", "Lat", "Long", "Time") 
+  names(holder) <- c("VehicleNum", "Direction", "Lat", "Long", "Time") 
   holder$Date <- Sys.Date()
   return(holder)
+  }
 }
 # Valid Origin and destination: Vancouver, Taylor Way, Capilano Road
 googleAPICaller <- function(key, origin, dest){
@@ -234,7 +245,7 @@ googleAPICaller <- function(key, origin, dest){
   CapilanoRD  <- c(49.331790, -123.115065)
   if(origin == "Vancouver" & dest == "Taylor Way"){
     VanToTaylor <- paste0("https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=", VanLocation[1], ",", VanLocation[2], "&destinations=", TaylorWay[1], ",", TaylorWay[2], "&key=", key)
-    data <- fromJSON(VanTOTaylor)
+    data <- fromJSON(VanToTaylor)
   }
   else if(origin == "Vancouver" & dest == "Capilano Road"){
     VanToCap    <- paste0("https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=", VanLocation[1], ",", VanLocation[2], "&destinations=", CapilanoRD[1], ",", CapilanoRD[2], "&key=", key)
@@ -248,7 +259,17 @@ googleAPICaller <- function(key, origin, dest){
     CapToVan    <- paste0("https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=", CapilanoRD[1], ",", CapilanoRD[2], "&destinations=", VanLocation[1], ",", VanLocation[2], "&key=", key)
     data <- fromJSON(CapToVan)
   }
+  data <- data$rows$elements[[1]]$duration$value # returns the seconds length of the trip estimate instead of bulky json data
   return(data)
+}
+
+googleIterator <- function(key){
+  # DOnt need sleep function, will be pseudo done by the other function calling translink
+  VanToTaylor <- googleAPICaller(key, "Vancouver", "Taylor Way")
+  VanToCap    <- googleAPICaller(key, "Vancouver", "Capilano Road")
+  TaylorToVan <- googleAPICaller(key, "Taylor Way", "Vancouver")
+  CapToVan    <- googleAPICaller(key, "Capilano Road", "Vancouver")
+  return(list(VanToTaylor, VanToCap, TaylorToVan, CapToVan))
 }
 
 iterator <- function(key){
@@ -282,7 +303,12 @@ R250S51475 <- list() # Van to NVan
 R240S54440 <- list() # NVan to Van
 R246S54440 <- list() # NVan to Van
 R250S54411 <- list() # NVan to Van
+VanToTaylor<- data.frame() # Non-transit stuff, names are self explanatory
+VanToCap   <- data.frame()
+TaylorToVan<- data.frame()
+CapToVan   <- data.frame()
 
+j <- 0
 while( iter < 3){
   tempResult <- iterator("BVGkIJET0Q9WEvvmvQrq")
   R240S51475[[iter]] <- tempResult[1]
@@ -292,6 +318,20 @@ while( iter < 3){
   R246S54440[[iter]] <- tempResult[5]
   R250S54411[[iter]] <- tempResult[6]
   iter = iter + 1
+  j <- j + 1
+  if(j == 2){
+    # Call google API half as frequently
+    tempGoogleResult <- googleIterator("AIzaSyAZt5UyUNZVt9xxhppR2dtEsxqy-AkW1N4")
+    VanToTaylor[iter %/% 2, 1] <- tempGoogleResult[1] 
+    VanToTaylor[iter %/% 2, 2] <- as.character(Sys.time())
+    VanToCap[iter %/% 2, 1] <- tempGoogleResult[2]
+    VanToCap[iter %/% 2, 2] <- as.character(Sys.time())
+    TaylorToVan[iter %/% 2, 1] <- tempGoogleResult[3] 
+    TaylorToVan[iter %/% 2, 2] <- as.character(Sys.time())
+    CapToVan[iter %/% 2, 1] <- tempGoogleResult[4]
+    CapToVan[iter %/% 2, 1] <- as.character(Sys.time())
+    j <- 0
+  }
 }
 
 
