@@ -15,19 +15,6 @@ library(rgdal)
 
 # Something to consider if we pursue this project
 
-# # Get link URLs
-# main.page <- read_html(x = "http://www.sd41.bc.ca/elementary-school-addresses/")
-# urls <- main.page %>% html_nodes("td a") %>% html_attr("href")
-# 
-# # Get the map pdfs
-# pdfList <- list()
-# for(i in 1:length(urls)){
-#   pdfList[i] <- download.file(urls[i], paste0("Map", i, ".pdf"), mode = "wb")
-# }
-# 
-# # View the images
-# txt <- pdf_text("Map7.pdf")
-
 # Use an arbitrary school as a base graph
 ArmstrongSchool <- get_map(location = c(lon = -122.9083027 ,lat = 49.2339746), zoom = 14)
 plottedSchool <- ggmap(ArmstrongSchool) + geom_point(aes(x = -122.9083027, y = 49.2339746, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none")
@@ -88,7 +75,7 @@ studentsAndLeaders
   cl <- as.factor(1:length(centers$x))
   clusters <- knn(train = centers[, 1:2], test = houses[, 1:2], cl = cl, k = 1)
   housesClustered <- houses %>% add_column(as.factor(clusters))
-  clusterPlot <- plottedSchool + geom_point(data = housesClustered, aes(x = x, y = y, col = factor(clusters), size = 4, shape = logNLeader))
+  clusterPlot <- plottedSchool + geom_point(data = housesClustered, aes(x = x, y = y, col = factor(clusters), size = 3, shape = logNLeader))
   clusterPlot  
   
   
@@ -122,6 +109,14 @@ schoolCatch <- function(jsonData, schoolName){
   return(final_DF) # Return the now long-lat coordinates
 }
 
+# Function to create polygon boundaries, takes the result of schoolCatch and a sample size as args and outputs sampled points
+polygons <- function(n, catchLongLat){
+  P <- Polygon(catchLongLat)
+  Ps <- SpatialPolygons(list(Polygons(list(P), ID = "a")), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"))
+  houses <- spsample(Ps, n = m, type = "random")@coords %>% as.data.frame()
+  return(houses)
+}
+
 # Example usage where testPlot is already the map centered at Charles Dickens
 gmap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14, maptype = "hybrid")
 testPlot <- ggmap(gmap) + geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none")
@@ -132,11 +127,65 @@ charlesDickensTest
 testCharles <- testPlot + geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red")
 
 # Generate the sample data of students for the region
-P3 <- Polygon(charlesDickensTest)
-Ps3 <- SpatialPolygons(list(Polygons(list(P3), ID = "a")), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")) # This creates the desired polygon boundary
-m = 15
-randomHousesNew <- spsample(Ps3, n = m, type = "random")@coords %>% as.data.frame() # Use Ps2 as this is a more realistic area for people to be distributed. The boundary for the region still holds, however
+charlesSample <- polygons(15, charlesDickensTest)
 
 # Plot it all together
-studentsInCharles <- testCharles + geom_point(data = randomHousesNew, aes(x = x, y = y))
+studentsInCharles <- testCharles + geom_point(data = charlesSample, aes(x = x, y = y))
 studentsInCharles
+
+# Function to assign leaders to the sampled points, just using uniform dist at this point
+leaders <- function(sampledPoints){
+  nPoints <- dim(sampledPoints)[1]
+  uniPoints <- runif(nPoints)
+  leader <- (uniPoints > 0.65)
+  leaderPoints <- cbind(sampledPoints, leader) %>% as.data.frame()
+  return(leaderPoints)
+}
+
+
+
+# Need clustering function to assign points to a leader. Currently uses knn and returns coords, leaders, and cluster membership
+groups <- function(nodesAndLeaders){
+  centers <- nodesAndLeaders %>% filter(leader == TRUE)
+  cl <- as.factor(1:length(centers$x))
+  clusters <- knn(train = centers[, 1:2], test = nodesAndLeaders[, 1:2], cl = cl, k = 1) %>% as.factor
+  housesClustered <- nodesAndLeaders %>% add_column(clusters)
+  return(housesClustered)
+}
+
+# Standard procedure to generate necessary info: Define school boundaries from file, sample points from polygon, assign leaders, group walkers, plot output
+charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
+charlesSample <- polygons(15, charlesDickensTest)
+check <- leaders(charlesSample)
+holder <- groups(check)
+
+schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14, maptype = "hybrid")
+schoolMapWithPoints <- ggmap(schoolMap) + 
+                       geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
+                       geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
+                       geom_point(data = holder, aes(x = x, y = y, col = clusters, shape = leader))
+
+############################################
+##### Google routing distance API work #####
+############################################
+
+googleKey <- "AIzaSyAZt5UyUNZVt9xxhppR2dtEsxqy-AkW1N4"
+
+googleAPICaller <- function(key, leaderAndNodes, dest){
+  origin <- leaderAndNodes %>% filter(leader == TRUE) %>% select(x, y)
+  intermediateNodes <- leaderAndNodes %>% filter(leader != TRUE) %>% select(x, y)
+  # Figure out how to properly concatenate the locations according to the x, y|x, y|x, y format required by google API
+  originToSchool <- paste0("https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=", origin, ",", "&destinations=", TaylorWay[1], ",", TaylorWay[2], "&key=", key)
+    data <- fromJSON(VanToTaylor)
+  
+  data <- data$rows$elements[[1]]$duration$value # returns the seconds length of the trip estimate instead of bulky json data
+  return(data)
+}
+
+charlesSample
+holder <- paste0(charlesSample$x, ",", charlesSample$y, "|")
+paste(holder[1:15], sep = "|")
+test <- paste(shQuote(holder, type = "cmd"), collapse="|")
+
+paste0(holder[1:3])
+str(holder)
