@@ -12,6 +12,8 @@ library(pdftools)
 library(rvest)
 library(ggmap)
 library(rgdal)
+library(class)
+library(stringr)
 
 # Something to consider if we pursue this project
 
@@ -70,7 +72,6 @@ studentsAndLeaders
 # Begin building the API scaffolding
   # First need to cluster points about the leaders that are closest to them so that the API call can handle number of observations
   # Use KNN as we get fixed start points based on the below train/test method
-  library(class)
   centers <- houses %>% filter(logNLeader == TRUE)
   cl <- as.factor(1:length(centers$x))
   clusters <- knn(train = centers[, 1:2], test = houses[, 1:2], cl = cl, k = 1)
@@ -83,7 +84,7 @@ studentsAndLeaders
 # Testing the file Neggyn found on the data custodian, url = http://data.vancouver.ca/datacatalogue/publicPlaces.htm
 library(jsonlite)
 schoolBoundaries <- fromJSON("elementary_school_boundaries.json")
-View(schoolBoundaries)
+
 
 # x and y coordinates are separated weirdly in the read data
 # x are approx 49000, y are approx 54000. Since coord pairs, mid point is the split I want. Can be achieved by a triple index
@@ -113,7 +114,7 @@ schoolCatch <- function(jsonData, schoolName){
 polygons <- function(n, catchLongLat){
   P <- Polygon(catchLongLat)
   Ps <- SpatialPolygons(list(Polygons(list(P), ID = "a")), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"))
-  houses <- spsample(Ps, n = m, type = "random")@coords %>% as.data.frame()
+  houses <- spsample(Ps, n = n, type = "random")@coords %>% as.data.frame()
   return(houses)
 }
 
@@ -156,36 +157,71 @@ groups <- function(nodesAndLeaders){
 # Standard procedure to generate necessary info: Define school boundaries from file, sample points from polygon, assign leaders, group walkers, plot output
 charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
 charlesSample <- polygons(15, charlesDickensTest)
-check <- leaders(charlesSample)
-holder <- groups(check)
+lead <- leaders(charlesSample)
+clustered <- groups(lead)
 
 schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14, maptype = "hybrid")
 schoolMapWithPoints <- ggmap(schoolMap) + 
                        geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
                        geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
-                       geom_point(data = holder, aes(x = x, y = y, col = clusters, shape = leader))
+                       geom_point(data = clustered, aes(x = x, y = y, col = clusters, shape = leader))
 
 ############################################
 ##### Google routing distance API work #####
 ############################################
 
-googleKey <- "AIzaSyAZt5UyUNZVt9xxhppR2dtEsxqy-AkW1N4"
+googleKey <- "AIzaSyDNSh3L8O1buhgauPwqqj6_Hb14HzgCXcg"
 
-googleAPICaller <- function(key, leaderAndNodes, dest){
-  origin <- leaderAndNodes %>% filter(leader == TRUE) %>% select(x, y)
-  intermediateNodes <- leaderAndNodes %>% filter(leader != TRUE) %>% select(x, y)
-  # Figure out how to properly concatenate the locations according to the x, y|x, y|x, y format required by google API
-  originToSchool <- paste0("https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=", origin, ",", "&destinations=", TaylorWay[1], ",", TaylorWay[2], "&key=", key)
-    data <- fromJSON(VanToTaylor)
-  
-  data <- data$rows$elements[[1]]$duration$value # returns the seconds length of the trip estimate instead of bulky json data
-  return(data)
+# Takes Lat, Long style coordinates
+googleAPICaller <- function(key, origin, waypoints, dest){
+  if(length(waypoints) > 0){
+    originToSchool <- paste0("https://maps.googleapis.com/maps/api/directions/json?units=metric&origin=", origin, "&destination=", dest,
+                             "&waypoints=", waypoints, "&mode=walking&key=", key)
+  }
+  else{
+    originToSchool <- paste0("https://maps.googleapis.com/maps/api/directions/json?units=metric&origin=", origin, "&destination=", dest,
+                             "&mode=walking&key=", key)
+  }
+  print(originToSchool)
+  holder <- fromJSON(originToSchool)
+  return(holder)
 }
 
-charlesSample
-holder <- paste0(charlesSample$x, ",", charlesSample$y, "|")
-paste(holder[1:15], sep = "|")
-test <- paste(shQuote(holder, type = "cmd"), collapse="|")
 
-paste0(holder[1:3])
-str(holder)
+# Function that takes the starting data frame and creates route string for API call. Should have the leader as starting node
+routeCreator <- function(clusterDF){
+  leaders <- clusterDF %>% filter(leader == TRUE)
+  nodes <- clusterDF %>% filter(leader != TRUE)
+  textData <- nodes %>% mutate(combo = paste0(.$y, ",", .$x))
+  routeList <- split(textData, textData$clusters)
+  routes <- list()
+  result <- list()
+  for(i in 1:length(names(routeList))){
+    temp <- with(leaders[i,], paste0(y, ",", x))
+    result[[i]] <- list(temp, with(routeList[[i]], paste0(combo)) %>% str_c(collapse = "|"))
+  }
+  return(result)
+}
+testSet <- routeCreator(clustered)
+testSet
+
+################ Test Google Call for Charles Dickens and simulated data ##############
+
+charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
+charlesSample <- polygons(15, charlesDickensTest)
+lead <- leaders(charlesSample)
+clustered <- groups(lead)
+charlesRoutes <- routeCreator(clustered)
+charlesDickensLocation <- "49.254957,-123.083038"
+
+# Test call for the 4th route: Key, origin, waypoints, destination
+googleCall <- googleAPICaller(googleKey, testSet[[4]][[1]], testSet[[4]][[2]], charlesDickensLocation)
+
+
+
+# Graph yet to be integrated with the path
+schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14, maptype = "hybrid")
+schoolMapWithPoints <- ggmap(schoolMap) + 
+  geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
+  geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
+  geom_point(data = clustered, aes(x = x, y = y, col = clusters, shape = leader))
