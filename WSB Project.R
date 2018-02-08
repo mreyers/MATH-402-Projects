@@ -128,11 +128,13 @@ googleAPICaller <- function(key, origin, waypoints, dest){
 iterGoogleAPI <- function(googleKey, clusteredRoutes, schoolLocation){
   numCalls <- length(clusteredRoutes)
   routesAPI <- list()
+  routeMeasures <- list()
   for(i in 1:numCalls){
     temp <- googleAPICaller(googleKey, clusteredRoutes[[i]][[1]], clusteredRoutes[[i]][[2]], schoolLocation)
     routesAPI[[i]] <- cbind(pathCollector(temp), cluster = i)
+    routeMeasures[[i]] <- timeAndDistBySection(temp)
   }
-  return(routesAPI)
+  return(list(routesAPI, routeMeasures))
 }
 
 # Function to extract path from googleAPI Call
@@ -181,10 +183,12 @@ charlesDickensLocation <- "49.254957,-123.083038"
 
 # Test call for the 4th route: Key, origin, waypoints, destination
 googleCall <- googleAPICaller(googleKey, charlesRoutes[[4]][[1]], charlesRoutes[[4]][[2]], charlesDickensLocation)
-multiPaths <- iterGoogleAPI(googleKey, charlesRoutes, charlesDickensLocation)
+allRoutesToSchool <- iterGoogleAPI(googleKey, charlesRoutes, charlesDickensLocation)
+routePaths <- allRoutesToSchool[[1]]
+routeMeasures <- allRoutesToSchool[[2]]
 
 # Graph with data points
-schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14, maptype = "hybrid")
+schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14)
 schoolMapWithPoints <- ggmap(schoolMap) + 
   geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
   geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
@@ -192,7 +196,27 @@ schoolMapWithPoints <- ggmap(schoolMap) +
 
 # Graph updated with paths
 allPaths <- data.frame()
-for(j in 1:length(multiPaths)){
-  allPaths <- rbind(allPaths, multiPaths[[j]])
+for(j in 1:length(routePaths)){
+  allPaths <- rbind(allPaths, routePaths[[j]])
 }
 allPathsPlot <- schoolMapWithPoints + geom_path(data = allPaths, aes(x = lng, y = lat, size = 2, group = cluster, colour = as.factor(cluster)))
+
+# Collection of route properties (length, distance) stored in routeMeasures
+# Convert these measures into walking times and distances of each student
+studentTravels <- function(allRouteMeasures){
+  numRoutes <- length(allRouteMeasures)
+  studentMeasure <- data.frame(Distance = numeric(), Duration = numeric())
+  for(i in 1:numRoutes){
+    route <- allRouteMeasures[[i]]
+    numStudents <- dim(allRouteMeasures[[i]])[1]
+    for(j in 1:numStudents){
+      studentDist <- sum(route[j:numStudents, 1])
+      studentTime <- round(sum(route[j:numStudents, 2]) / 60, 2)
+      student <- cbind(studentDist, studentTime)
+      studentMeasure <- rbind(studentMeasure, student)
+    }
+  }
+  return(studentMeasure)
+}
+
+testTravels <- studentTravels(routeMeasures)
