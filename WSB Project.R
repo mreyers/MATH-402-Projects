@@ -4,7 +4,7 @@
 #       Calls Google API in path mapping, and optimizes number of walking school busses
 #       With minimum requirements on student distance and number of busses
 
-# Step 1: Grab a set of schools and their corresponding catchment regions
+# Step 1: Libraries
 library(sp)
 library(tidyverse)
 library(rvest)
@@ -14,75 +14,11 @@ library(ggmap)
 library(rgdal)
 library(class)
 library(stringr)
-
-# Something to consider if we pursue this project
-
-# Use an arbitrary school as a base graph
-ArmstrongSchool <- get_map(location = c(lon = -122.9083027 ,lat = 49.2339746), zoom = 14)
-plottedSchool <- ggmap(ArmstrongSchool) + geom_point(aes(x = -122.9083027, y = 49.2339746, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none")
-
-# Create a polygon bounding the school catchment
-  # Will be done heuristically for now
-lon <- c(-122.917433, -122.926703, -122.927647, -122.930436, -122.927475, -122.931520, -122.914654, -122.913066, -122.906414, -122.892510, -122.892682, -122.897660)
-lat <- c(49.225133, 49.232405, 49.231957, 49.234297, 49.235838, 49.239243, 49.249329, 49.247760, 49.247087, 49.240587, 49.235656, 49.235124)
-polyCoords <- as.data.frame(cbind(lon, lat)) 
-rownames(polyCoords) = letters[1:dim(polyCoords)[1]]
-
-# Update graph with catchment
-plottedSchool <- plottedSchool + geom_polygon(data = polyCoords, aes(x = lon, y = lat) , alpha = 0.3, colour = "red", fill = "red") 
-  
-# Create a bounding box that I can sample from
-coords <- cbind(lon, lat)
-P1 <- Polygon(coords)
-Ps1 <- SpatialPolygons(list(Polygons(list(P1), ID = "a")), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")) # This creates the desired polygon boundary
-
-# Create a bouding box for the residential area only for more reasonable point generation
-lonRes <- c(-122.917433, -122.926703, -122.908289, -122.892603, -122.892682, -122.897660)
-latRes <- c(49.225133, 49.232405, 49.242508, 49.237703, 49.235656, 49.235124)
-coordsRes <- cbind(lonRes, latRes)
-P2 <- Polygon(coordsRes)
-Ps2 <- SpatialPolygons(list(Polygons(list(P2), ID = "a")), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")) # This creates the desired polygon boundary
-
-# Sample n students from the region and add to the plot. Raw data will be used again later for API call
-n = 10
-randomHouses <- spsample(Ps2, n = n, type = "random")@coords %>% as.data.frame() # Use Ps2 as this is a more realistic area for people to be distributed. The boundary for the region still holds, however
-studentsInCatchment <- plottedSchool + geom_point(data = randomHouses, aes(x = x, y = y))
-studentsInCatchment
-
-# Select some of the random houses to represent parents that are willing to lead the WSB
-  # Do this according to diff probability distributions
-    # Uniform
-    uniVals <- runif(n) #[0, 1]
-    
-    # Normal
-    normVals <- rnorm(n) #(-inf, inf), mean = 0, sd = 1
-    
-    # Log Normal
-    logNVals <- rlnorm(n) # (0, inf), mean = exp^.5 = 1.61
-    
-# Create a systematic way to decide which houses are volunteer leaders    
-houses <- cbind(randomHouses, uniVals, normVals, logNVals)    
-houses$UniLeader <- (houses$uniVals > 0.5)
-houses$normLeader <- (houses$normVals > 0.5)
-houses$logNLeader <- (houses$logNVals > 1.61)
-head(houses)
-studentsAndLeaders <- plottedSchool + geom_point(data = houses, aes(x = x, y=y, col = logNLeader))
-studentsAndLeaders
-
-# Begin building the API scaffolding
-  # First need to cluster points about the leaders that are closest to them so that the API call can handle number of observations
-  # Use KNN as we get fixed start points based on the below train/test method
-  centers <- houses %>% filter(logNLeader == TRUE)
-  cl <- as.factor(1:length(centers$x))
-  clusters <- knn(train = centers[, 1:2], test = houses[, 1:2], cl = cl, k = 1)
-  housesClustered <- houses %>% add_column(as.factor(clusters))
-  clusterPlot <- plottedSchool + geom_point(data = housesClustered, aes(x = x, y = y, col = factor(clusters), size = 3, shape = logNLeader))
-  clusterPlot  
-  
-  
-  
-# Testing the file Neggyn found on the data custodian, url = http://data.vancouver.ca/datacatalogue/publicPlaces.htm
 library(jsonlite)
+
+
+# Step 2: Grab a set of schools and their corresponding catchment regions  
+# Testing the file Neggyn found on the data custodian, url = http://data.vancouver.ca/datacatalogue/publicPlaces.htm
 schoolBoundaries <- fromJSON("elementary_school_boundaries.json")
 
 
@@ -92,6 +28,7 @@ schoolBoundaries <- fromJSON("elementary_school_boundaries.json")
   #schoolBoundaries$features$geometry$coordinates[[1]][, , 2]
 
 
+# Step 3: Function definitions
 
 ######## Testing stuff for conversion of coordinate systems: Status = Working #########
 # If the function breaks visit: http://www.alex-singleton.com/R-Tutorial-Materials/7-converting-coordinates.pdf
@@ -166,6 +103,7 @@ schoolMapWithPoints <- ggmap(schoolMap) +
                        geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
                        geom_point(data = clustered, aes(x = x, y = y, col = clusters, shape = leader))
 
+# Step 4: API setup
 ############################################
 ##### Google routing distance API work #####
 ############################################
@@ -176,17 +114,44 @@ googleKey <- "AIzaSyDNSh3L8O1buhgauPwqqj6_Hb14HzgCXcg"
 googleAPICaller <- function(key, origin, waypoints, dest){
   if(length(waypoints) > 0){
     originToSchool <- paste0("https://maps.googleapis.com/maps/api/directions/json?units=metric&origin=", origin, "&destination=", dest,
-                             "&waypoints=", waypoints, "&mode=walking&key=", key)
+                             "&waypoints=optimize:true|", waypoints, "&mode=walking&key=", key)
   }
   else{
     originToSchool <- paste0("https://maps.googleapis.com/maps/api/directions/json?units=metric&origin=", origin, "&destination=", dest,
                              "&mode=walking&key=", key)
   }
-  print(originToSchool)
   holder <- fromJSON(originToSchool)
   return(holder)
 }
 
+# Function that iterates over the n clusters we create
+iterGoogleAPI <- function(googleKey, clusteredRoutes, schoolLocation){
+  numCalls <- length(clusteredRoutes)
+  routesAPI <- list()
+  for(i in 1:numCalls){
+    temp <- googleAPICaller(googleKey, clusteredRoutes[[i]][[1]], clusteredRoutes[[i]][[2]], schoolLocation)
+    routesAPI[[i]] <- cbind(pathCollector(temp), cluster = i)
+  }
+  return(routesAPI)
+}
+
+# Function to extract path from googleAPI Call
+pathCollector <- function(oneGoogleCall){
+  steps <- oneGoogleCall$routes$legs[[1]]$steps
+  holder <- steps[[1]]$start_location[1,]
+  for(i in 1:length(steps)){
+    holder <- rbind(holder, steps[[i]]$end_location)
+  }
+  return(holder)
+}
+
+# Function to extract time (seconds) and distance (metres) from the path
+timeAndDistBySection <- function(oneGoogleCall){
+  legs <- oneGoogleCall$routes$legs[[1]]
+  dist <- legs$duration$value
+  time <- legs$distance$value
+  return(cbind(dist, time))
+}
 
 # Function that takes the starting data frame and creates route string for API call. Should have the leader as starting node
 routeCreator <- function(clusterDF){
@@ -215,13 +180,19 @@ charlesRoutes <- routeCreator(clustered)
 charlesDickensLocation <- "49.254957,-123.083038"
 
 # Test call for the 4th route: Key, origin, waypoints, destination
-googleCall <- googleAPICaller(googleKey, testSet[[4]][[1]], testSet[[4]][[2]], charlesDickensLocation)
+googleCall <- googleAPICaller(googleKey, charlesRoutes[[4]][[1]], charlesRoutes[[4]][[2]], charlesDickensLocation)
+multiPaths <- iterGoogleAPI(googleKey, charlesRoutes, charlesDickensLocation)
 
-
-
-# Graph yet to be integrated with the path
+# Graph with data points
 schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14, maptype = "hybrid")
 schoolMapWithPoints <- ggmap(schoolMap) + 
   geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
   geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
   geom_point(data = clustered, aes(x = x, y = y, col = clusters, shape = leader))
+
+# Graph updated with paths
+allPaths <- data.frame()
+for(j in 1:length(multiPaths)){
+  allPaths <- rbind(allPaths, multiPaths[[j]])
+}
+allPathsPlot <- schoolMapWithPoints + geom_path(data = allPaths, aes(x = lng, y = lat, size = 2, group = cluster, colour = as.factor(cluster)))
