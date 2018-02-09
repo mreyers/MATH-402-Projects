@@ -182,7 +182,9 @@ charlesRoutes <- routeCreator(clustered)
 charlesDickensLocation <- "49.254957,-123.083038"
 
 # Test call for the 4th route: Key, origin, waypoints, destination
-googleCall <- googleAPICaller(googleKey, charlesRoutes[[4]][[1]], charlesRoutes[[4]][[2]], charlesDickensLocation)
+##googleCall <- googleAPICaller(googleKey, charlesRoutes[[4]][[1]], charlesRoutes[[4]][[2]], charlesDickensLocation)
+
+# Iterator call for all routes
 allRoutesToSchool <- iterGoogleAPI(googleKey, charlesRoutes, charlesDickensLocation)
 routePaths <- allRoutesToSchool[[1]]
 routeMeasures <- allRoutesToSchool[[2]]
@@ -220,3 +222,31 @@ studentTravels <- function(allRouteMeasures){
 }
 
 testTravels <- studentTravels(routeMeasures)
+
+
+############# IN PROGRESS ##################
+# Idea: kmeans clustering on non-leader nodes, join closest cluster to closest leader
+recluster <- function(clusters){
+  nonLeader <- clusters[clusters$leader != TRUE, ]
+  leader <- clusters[clusters$leader == TRUE, ]
+  meanResults <- kmeans(nonLeader[, 1:2], centers = dim(leader)[1])
+  distMat <- apply(meanResults$centers, MARGIN = 1, distGeo, p2 = leader[,1:2]) # columns are kmeans[i] versus each predefined leader
+  
+  
+}
+
+nonLeader <- clustered[clustered$leader != TRUE,]
+leader <- clustered[clustered$leader == TRUE,]
+
+nodeMeans <- kmeans(nonLeader[, 1:2], centers = dim(leader)[1])
+nodeMeans$centers
+leader[, 1:2]
+library(geosphere)
+distGeo(nodeMeans$centers[1,], leader[, 1:2])
+test <- apply(nodeMeans$centers, MARGIN = 1, distGeo,
+      p2 = leader[, 1:2])
+pair1 <- c(2, 2)
+
+
+nonLeader$newClust <- nodeMeans$cluster
+
