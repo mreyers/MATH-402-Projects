@@ -15,7 +15,8 @@ library(rgdal)
 library(class)
 library(stringr)
 library(jsonlite)
-
+library(geosphere) # geodistances
+library(clue) # Hungarian algorithm
 
 # Step 2: Grab a set of schools and their corresponding catchment regions  
 # Testing the file Neggyn found on the data custodian, url = http://data.vancouver.ca/datacatalogue/publicPlaces.htm
@@ -175,10 +176,11 @@ testSet
 ################ Test Google Call for Charles Dickens and simulated data ##############
 
 charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
-charlesSample <- polygons(15, charlesDickensTest)
+charlesSample <- polygons(30, charlesDickensTest)
 lead <- leaders(charlesSample)
 clustered <- groups(lead)
-charlesRoutes <- routeCreator(clustered)
+# Trying the routes out with clustered data, then with the testclust from below
+charlesRoutes <- routeCreator(testSet2)
 charlesDickensLocation <- "49.254957,-123.083038"
 
 # Test call for the 4th route: Key, origin, waypoints, destination
@@ -194,7 +196,7 @@ schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14
 schoolMapWithPoints <- ggmap(schoolMap) + 
   geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
   geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
-  geom_point(data = clustered, aes(x = x, y = y, col = clusters, shape = leader))
+  geom_point(data = testSet2, aes(x = x, y = y, col = clusters, shape = leader))
 
 # Graph updated with paths
 allPaths <- data.frame()
@@ -221,32 +223,60 @@ studentTravels <- function(allRouteMeasures){
   return(studentMeasure)
 }
 
-testTravels <- studentTravels(routeMeasures)
+testTravels3 <- studentTravels(routeMeasures)
 
 
-############# IN PROGRESS ##################
-# Idea: kmeans clustering on non-leader nodes, join closest cluster to closest leader
+############# FUNCTIONAL ##################
+# Idea: kmeans clustering on non-leader nodes, join closest cluster to closest leader based on cluster centers. Each
 recluster <- function(clusters){
   nonLeader <- clusters[clusters$leader != TRUE, ]
   leader <- clusters[clusters$leader == TRUE, ]
-  meanResults <- kmeans(nonLeader[, 1:2], centers = dim(leader)[1])
+  meanResults <- kmeans(nonLeader[, 1:2], centers = dim(leader)[1], iter = 20)
+  nonLeader$tempID <- meanResults$cluster
   distMat <- apply(meanResults$centers, MARGIN = 1, distGeo, p2 = leader[,1:2]) # columns are kmeans[i] versus each predefined leader
-  
-  
+  optAssignments <- solve_LSAP(distMat)
+  nonLeader$newClusters <- 0
+  #print(optAssignments)
+  for(i in 1:length(optAssignments)){
+    nonLeader[nonLeader$tempID == i, "newClusters"] <- optAssignments[i]
+  }
+  #print(nonLeader)
+  nonLeader <- nonLeader %>% mutate(clusters = newClusters) %>% select(-tempID, -newClusters)
+  rownames(nonLeader) <- NULL
+  rownames(leader) <- NULL
+  reCluster <- rbind(leader, nonLeader)
+  return(reCluster)
 }
 
-nonLeader <- clustered[clustered$leader != TRUE,]
-leader <- clustered[clustered$leader == TRUE,]
+testClust <- recluster(clustered)
 
-nodeMeans <- kmeans(nonLeader[, 1:2], centers = dim(leader)[1])
-nodeMeans$centers
-leader[, 1:2]
-library(geosphere)
-distGeo(nodeMeans$centers[1,], leader[, 1:2])
-test <- apply(nodeMeans$centers, MARGIN = 1, distGeo,
-      p2 = leader[, 1:2])
-pair1 <- c(2, 2)
+# Another function idea: Use hierarchical clustering based on geodesic distance matrix
+hierClustering <- function(coordinates){
+  leader <- coordinates[coordinates$leader == TRUE,]
+  nonLeader <- coordinates[coordinates$leader == FALSE,]
+  # convert data to a SpatialPointsDataFrame object
+  xyCoords <- cbind(nonLeader$x, nonLeader$y)
+  xy <- SpatialPointsDataFrame(
+    matrix(xyCoords, ncol=2), data.frame(ID=seq(1:dim(xyCoords)[1])),
+    proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+  
+  # use the distm function to generate a geodesic distance matrix in meters
+  mdist <- distm(xy)
+  
+  # cluster all points using a hierarchical clustering approach
+  hc <- hclust(as.dist(mdist), method="complete")
+  
+  # define the cluster threshold, in this case = to the number of leaders
+  k=dim(leader)[1]
+  
+  # define clusters based on a tree "height" cutoff "d" and add them to the SpDataFrame
+  nonLeader$clusters <- cutree(hc, k = k)
+  rownames(nonLeader) <- NULL
+  leaderClusters <- knn(train = nonLeader[, 1:2], test = leader[, 1:2], cl = nonLeader$clusters, k = 4)
+  leader$clusters <- leaderClusters
+  rownames(leader) <- NULL
+  clusters <- rbind(leader, nonLeader)
+  return(clusters)
+}
 
-
-nonLeader$newClust <- nodeMeans$cluster
-
+testSet2 <- hierClustering(clustered)
