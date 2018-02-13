@@ -154,7 +154,7 @@ scoreRoute <- function(travel,info, clustered){
 
 score <- scoreRoute(testTravels, example, clustered)
 
-#notes:
+#notes :
 #there are so many assumptions I made to just create the base of scoring funtion
 #right now it just check the scores for time and distance. haven't work on leader yet!
 #I assumed in "testTravels" and "clustered" students are in the same order! 
