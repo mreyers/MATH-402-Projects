@@ -2,6 +2,8 @@
 #######checking each constraint seperately.#######
 #and return points that will be deducted in scoring function:
 
+#*NOTE: First run "WSB Projet" then run this. I'm using "clustered" and "testTravels" data sets here. 
+
 ##### points : 3 important, 2 ok, 1 not very important 
 
 library(MASS)
