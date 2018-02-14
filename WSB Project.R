@@ -17,6 +17,9 @@ library(stringr)
 library(jsonlite)
 library(geosphere) # geodistances
 library(clue) # Hungarian algorithm
+library(dbscan)
+library(ppclust) # fuzzy
+library(Rfast) # rowMaxs
 
 # Step 2: Grab a set of schools and their corresponding catchment regions  
 # Testing the file Neggyn found on the data custodian, url = http://data.vancouver.ca/datacatalogue/publicPlaces.htm
@@ -180,7 +183,7 @@ charlesSample <- polygons(30, charlesDickensTest)
 lead <- leaders(charlesSample)
 clustered <- groups(lead)
 # Trying the routes out with clustered data, then with the testclust from below
-charlesRoutes <- routeCreator(testSet2)
+charlesRoutes <- routeCreator(fuzzyResults)
 charlesDickensLocation <- "49.254957,-123.083038"
 
 # Test call for the 4th route: Key, origin, waypoints, destination
@@ -196,7 +199,7 @@ schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14
 schoolMapWithPoints <- ggmap(schoolMap) + 
   geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
   geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
-  geom_point(data = testSet2, aes(x = x, y = y, col = clusters, shape = leader))
+  geom_point(data = fuzzyResults, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
 
 # Graph updated with paths
 allPaths <- data.frame()
@@ -223,7 +226,7 @@ studentTravels <- function(allRouteMeasures){
   return(studentMeasure)
 }
 
-testTravels3 <- studentTravels(routeMeasures)
+testTravels4 <- studentTravels(routeMeasures)
 
 
 ############# FUNCTIONAL ##################
@@ -280,3 +283,39 @@ hierClustering <- function(coordinates){
 }
 
 testSet2 <- hierClustering(clustered)
+
+# Another Clustering algorithm, this one uses DBSCAN (a geodesic distance clustering). Currently not working as desired, doesnt take all points
+geoCluster <- function(coordinates){
+  leader <- coordinates[coordinates$leader == TRUE,]
+  nonLeader <- coordinates[coordinates$leader == FALSE,]
+  
+  # Minimum number of points per cluster should be dependent on number of students and leaders
+  minStudents <- ceiling(max(dim(nonLeader)[1] / dim(leader)[1] - 2, 2)) # -2 and 2 are arbitrary, can be changed
+  
+  # convert data to a SpatialPointsDataFrame object
+  xyCoords <- cbind(coordinates$x, coordinates$y)
+  clustering <- optics(xyCoords, eps = 0.003, minPts = minStudents)
+  return(clustering)
+  
+}
+
+test <- geoCluster(clustered)
+
+
+# Fuzzy clustering works for path generation though it seems a leader is occasionally misclassified despite its route going fine
+fuzzyClusters <- function(coordinates){
+  
+  # Do the fuzzy matching and select the probability matrix from the output (column u)
+  fuzzyMatch <- fcm(coordinates[, 1:2], centers = coordinates[coordinates$leader == TRUE, 1:2]) # Centers are the route leaders
+  fuzzyMatch <- fuzzyMatch$u
+  
+  # Choose cluster ID based on maximum probability
+  maxRows <- rowMaxs(fuzzyMatch)
+  
+  # Add the cluster id's to the data set
+  coordinates$clusters <- maxRows
+  return(coordinates)
+}
+
+fuzzyResults <- fuzzyClusters(clustered) #537.99
+
