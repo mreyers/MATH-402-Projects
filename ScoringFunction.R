@@ -101,31 +101,43 @@ maxDis <- example$maxDistance
 distancPoints <- checkDistance(maxDis, minDis, travelDis)
 
 
-#*************need work, haven't tested yet!*****************
+
 #function to check leader's capacity: how many students should each leader have 
 #INPUTS:
 #capacity= # of students each leader should have
 #nstudent= # of students that a leader has already
 minStudent <- 2 #minimum # of students each leader should have
 checkLeadersCapacity <- function(capacity, nstudent){
-  if (nstudent <= capacity) {point <- 0}
-  else if (nstudent > capacity & nstudent <= capacity + 2) {point <- 1}
-  else if (student > capacity+2 ) {point <- 2} #check this one if it needs to be 2!
-  return (point)
+  pts <- c()
+  for(i in 1: length(nstudent)){
+    if (nstudent[i] <= capacity) {pts[i] <- 0}
+    else if (nstudent[i] > capacity & nstudent[i] <= capacity + 2) {pts[i] <- 1}
+    else if (nstudent[i] > capacity+2 ) {pts[i] <- 2} #check this one if it needs to be 2!
+  }
+  return (pts)
 }
 
-
-
+n <- max(as.numeric(clustered$clusters))
+nstudent <- c()
+for (j in 1:n){
+  nstudent[j] <- sum(as.numeric(clustered$clusters) == j) #num of students of each cluster
+}
+capacityPoint <- checkLeadersCapacity(3, nstudent)
 #********* scoring funciton ******
 #travel = time and distance take to school for each student
 #info= data frame of file "example" 
 
 scoreRoute <- function(travel,info, clustered){
   
-  #need them?
-  #leader <- clustered[clustered$leader == TRUE,]
-  #nonleader <- clustered[clustered$leader != TRUE, ]
-  #leaderCap <- 4   #arbitrary number change later!
+  #number of clusters
+  n <- max(as.numeric(clustered$clusters))
+  
+  #number of students in each cluster
+  nstudent <- c()
+  for (j in 1:n){
+    nstudent[j] <- sum(as.numeric(clustered$clusters) == j) #num of students of each cluster
+  }
+  leaderCap <- 5   #arbitrary number for leader Capacity!
   
   travelDis <- travel$studentDist
   travelTime <- travel$studentTime
@@ -137,26 +149,32 @@ scoreRoute <- function(travel,info, clustered){
   
   arrivalTime <- timeGetToSchool(leaveHome, travelTime)
   
-  
+  #points for each student
   points<- checkTime(arrivalTime, schoolTime) + checkDistance(maxDis, minDis, travelDis)
-  #nstudent <- sum(as.numeric(clustered$clusters) == i) #num of students of each cluster
-  #points[i] <- points[i] + checkLeadersCapacity(leaderCap, nstudent)
   
+  
+  #adding "points" colum to "clustered" data set
   clustered$points <- points
-  
   clusterPoints <- c()
-  for (j in 1:nrow(clustered)){
-    clusterPoints[j] <- sum(which(clustered$clusters == j)) 
+  
+  #summing all points for each cluster
+  for (j in 1:n){
+   clusterPoints[j] <- sum(clustered$points[clustered$clusters == j])
   }
+  clusterPoints <- clusterPoints + checkLeadersCapacity(leaderCap, nstudent)
   return (clusterPoints)
   
 }
 
-#test: 
 
+#test: 
 score <- scoreRoute(testTravels, example, clustered)
 
 #notes :
 #there are so many assumptions I made to just create the base of scoring funtion
 #right now it just check the scores for time and distance. haven't work on leader yet!
 #I assumed in "testTravels" and "clustered" students are in the same order! 
+
+
+
+
