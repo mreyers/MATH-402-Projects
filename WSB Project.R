@@ -23,7 +23,7 @@ library(Rfast) # rowMaxs
 
 # Step 2: Grab a set of schools and their corresponding catchment regions  
 # Testing the file Neggyn found on the data custodian, url = http://data.vancouver.ca/datacatalogue/publicPlaces.htm
-schoolBoundaries <- fromJSON("elementary_school_boundaries.json")
+schoolBoundaries <- fromJSON("elementary_school_boundaries.json")$features
 
 
 # x and y coordinates are separated weirdly in the read data
@@ -39,9 +39,9 @@ schoolBoundaries <- fromJSON("elementary_school_boundaries.json")
 
 # Create a function that takes the jsonData and a given school and outputs its catchment map and bounding polygon. Will throw error for invalid school at the moment
 schoolCatch <- function(jsonData, schoolName){
-  index <- which(jsonData$features$properties$NAME == schoolName) # Select the school set of coords 
-  Easting <- jsonData$features$geometry$coordinates[[index]][, , 1] # Separate to x and y
-  Northing<- jsonData$features$geometry$coordinates[[index]][, , 2]
+  index <- which(jsonData$properties$NAME == schoolName) # Select the school set of coords 
+  Easting <- jsonData$geometry$coordinates[[index]][, , 1] # Separate to x and y
+  Northing<- jsonData$geometry$coordinates[[index]][, , 2]
   ID <- data.frame(1:length(Easting)) # ID var for later
   coords <- cbind(Easting, Northing) %>% as.data.frame()
   catch_SP <- SpatialPointsDataFrame(coords, data = ID, proj4string = CRS("+init=EPSG:26910")) # init = EPSG:26910 is a region specific identifier for coord system
@@ -59,21 +59,6 @@ polygons <- function(n, catchLongLat){
   return(houses)
 }
 
-# Example usage where testPlot is already the map centered at Charles Dickens
-gmap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14, maptype = "hybrid")
-testPlot <- ggmap(gmap) + geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none")
-
-
-charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
-charlesDickensTest
-testCharles <- testPlot + geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red")
-
-# Generate the sample data of students for the region
-charlesSample <- polygons(15, charlesDickensTest)
-
-# Plot it all together
-studentsInCharles <- testCharles + geom_point(data = charlesSample, aes(x = x, y = y))
-studentsInCharles
 
 # Function to assign leaders to the sampled points, just using uniform dist at this point
 leaders <- function(sampledPoints){
@@ -90,22 +75,13 @@ leaders <- function(sampledPoints){
 groups <- function(nodesAndLeaders){
   centers <- nodesAndLeaders %>% filter(leader == TRUE)
   cl <- as.factor(1:length(centers$x))
-  clusters <- knn(train = centers[, 1:2], test = nodesAndLeaders[, 1:2], cl = cl, k = 1) %>% as.factor
+  clusters <- class::knn(train = centers[, 1:2], test = nodesAndLeaders[, 1:2], cl = cl, k = 1) %>% as.factor
   housesClustered <- nodesAndLeaders %>% add_column(clusters)
   return(housesClustered)
 }
 
 # Standard procedure to generate necessary info: Define school boundaries from file, sample points from polygon, assign leaders, group walkers, plot output
-charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
-charlesSample <- polygons(15, charlesDickensTest)
-lead <- leaders(charlesSample)
-clustered <- groups(lead)
 
-schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14, maptype = "hybrid")
-schoolMapWithPoints <- ggmap(schoolMap) + 
-                       geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
-                       geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
-                       geom_point(data = clustered, aes(x = x, y = y, col = clusters, shape = leader))
 
 # Step 4: API setup
 ############################################
@@ -173,8 +149,7 @@ routeCreator <- function(clusterDF){
   }
   return(result)
 }
-testSet <- routeCreator(clustered)
-testSet
+
 
 ################ Test Google Call for Charles Dickens and simulated data ##############
 
@@ -275,7 +250,7 @@ hierClustering <- function(coordinates){
   # define clusters based on a tree "height" cutoff "d" and add them to the SpDataFrame
   nonLeader$clusters <- cutree(hc, k = k)
   rownames(nonLeader) <- NULL
-  leaderClusters <- knn(train = nonLeader[, 1:2], test = leader[, 1:2], cl = nonLeader$clusters, k = 4)
+  leaderClusters <- class::knn(train = nonLeader[, 1:2], test = leader[, 1:2], cl = nonLeader$clusters, k = 4)
   leader$clusters <- leaderClusters
   rownames(leader) <- NULL
   clusters <- rbind(leader, nonLeader)
@@ -283,23 +258,6 @@ hierClustering <- function(coordinates){
 }
 
 testSet2 <- hierClustering(clustered)
-
-# Another Clustering algorithm, this one uses DBSCAN (a geodesic distance clustering). Currently not working as desired, doesnt take all points
-geoCluster <- function(coordinates){
-  leader <- coordinates[coordinates$leader == TRUE,]
-  nonLeader <- coordinates[coordinates$leader == FALSE,]
-  
-  # Minimum number of points per cluster should be dependent on number of students and leaders
-  minStudents <- ceiling(max(dim(nonLeader)[1] / dim(leader)[1] - 2, 2)) # -2 and 2 are arbitrary, can be changed
-  
-  # convert data to a SpatialPointsDataFrame object
-  xyCoords <- cbind(coordinates$x, coordinates$y)
-  clustering <- optics(xyCoords, eps = 0.003, minPts = minStudents)
-  return(clustering)
-  
-}
-
-test <- geoCluster(clustered)
 
 
 # Fuzzy clustering works for path generation though it seems a leader is occasionally misclassified despite its route going fine
@@ -319,3 +277,34 @@ fuzzyClusters <- function(coordinates){
 
 fuzzyResults <- fuzzyClusters(clustered) #537.99
 
+# Based on the first set of data used, fuzzy clustering looks to be the best fit for this work though we can do more tests to verify
+
+####################################
+# Testing the above functions over multiple catchments and situations #
+####################################
+
+# Get school coordinates 
+View(schoolBoundaries$features)
+
+# test.csv has geocoordinates for the schools, load them in and filter the clean ones that were well located
+schoolLocations <- read.csv("test.csv")
+schoolBoundaries$features$properties$lat <- schoolLocations$lat
+schoolBoundaries$features$properties$long<- schoolLocations$long
+
+# Schools that can be easily iterated through
+easySchoolsCoords <- schoolBoundaries$features$properties %>% filter(lat >49 &
+                                             lat <50 &
+                                             long > c(-124) &
+                                             long < c(-122))
+
+easySchoolsPolygons <- schoolBoundaries$features[schoolBoundaries$features$properties$NAME %in% easySchoolsCoords$NAME,]
+easySchoolsPolygons$stringCoords <- paste0(easySchoolsPolygons$properties$lat, ",", easySchoolsPolygons$properties$long)
+
+# Now to build the structure of iterating based on the usable schools and the structure laid out above
+schoolTest <- schoolCatch(easySchoolsPolygons, easySchoolsPolygons$properties$NAME[1])
+schoolSample <- polygons(30, schoolTest)
+schoolLead <- leaders(schoolSample)
+schoolClustered <- groups(schoolLead)
+# Trying the routes out with clustered data, then with the testclust from below
+schoolRoutes <- routeCreator(schoolClustered)
+schoolLocation <- easySchoolsPolygons$stringCoords[1]
