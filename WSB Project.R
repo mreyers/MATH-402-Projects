@@ -297,10 +297,12 @@ easySchoolsCoords <- schoolBoundaries$features$properties %>% filter(lat >49 &
                                              long > c(-124) &
                                              long < c(-122))
 
-easySchoolsPolygons <- schoolBoundaries$features[schoolBoundaries$features$properties$NAME %in% easySchoolsCoords$NAME,]
+# We have two Lord Strathcona Elemtentaries, need to remove both because of run errors probably due to how data recorded
+easySchoolsPolygons <- schoolBoundaries$features[schoolBoundaries$features$properties$NAME %in% easySchoolsCoords$NAME & schoolBoundaries$features$properties$NAME != "Lord Strathcona Community Elementary",]
+# Error occurring at Shaugnessy as well, look into the cause
+
 easySchoolsPolygons$stringCoords <- paste0(easySchoolsPolygons$properties$lat, ",", easySchoolsPolygons$properties$long)
 rownames(easySchoolsPolygons)
-easySchoolsPolygons[1]
 # Now to build the structure of iterating based on the usable schools and the structure laid out above
 
 allPathsAllSchools <- rep(list(NA), length(easySchoolsPolygons$properties$NAME))
@@ -349,3 +351,15 @@ assign(paste0(easySchoolsPolygons$properties$NAME[i], " Paths"), (schoolMapWithP
 
 }
 
+
+
+############ NEW SAMPLING STUFF #################
+# Data is saved in the spatialfiles folder in downloads
+# Figure out how to grab and plot the coordinates from the object
+library(maptools)
+
+area <- readShapePoly(file.choose(), delete_null_obj = TRUE)
+area@plotOrder
+
+View(area)
+str(area@polygons@Polygons)
