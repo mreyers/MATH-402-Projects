@@ -245,8 +245,13 @@ hierClustering <- function(coordinates){
   hc <- hclust(as.dist(mdist), method="complete")
   
   # define the cluster threshold, in this case = to the number of leaders
-  k=dim(leader)[1]
-  
+  k <- dim(leader)[1]
+  if( k <= 14){
+    k <- k
+  }
+  else{
+    k <- 14
+  }
   # define clusters based on a tree "height" cutoff "d" and add them to the SpDataFrame
   nonLeader$clusters <- cutree(hc, k = k)
   rownames(nonLeader) <- NULL
@@ -316,7 +321,7 @@ for(i in 1:length(easySchoolsPolygons$properties$NAME)){
   
   # Determine the leaders and build the clusters, though clustering can be done differently
   schoolLead <- leaders(schoolSample)
-  schoolClustered <- groups(schoolLead)
+  schoolClustered <- groups(schoolLead) # Can recluster schoolClustered according to the functions designed
   
   # Build routes and identify the location of the school
   schoolRoutes <- routeCreator(schoolClustered)
@@ -331,7 +336,7 @@ for(i in 1:length(easySchoolsPolygons$properties$NAME)){
   schoolMap <- get_map(location = c(lon = easySchoolsPolygons$properties$long[i] ,lat = easySchoolsPolygons$properties$lat[i]), zoom = 14)
   
   assign(paste0(easySchoolsPolygons$properties$NAME[i]),  (ggmap(schoolMap) + 
-    geom_point(aes(x = easySchoolsPolygons$properties$long[i], y = easySchoolsPolygons$properties$lat[i], size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
+    geom_point(aes(x = easySchoolsPolygons$properties$long[i], y = easySchoolsPolygons$properties$lat[i], size = 3, col = "black", alpha = 0.3, shape = 13)) + theme(legend.position = "none") + 
     geom_polygon(data = schoolTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
     geom_point(data = schoolClustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))))
   
@@ -364,3 +369,6 @@ area@plotOrder
 
 View(area)
 str(area@polygons@Polygons)
+
+# Use the following to access the coordinates in the area data, iteration
+area[,1]@polygons[[1]]@Polygons[[1]]@coords
