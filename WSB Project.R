@@ -284,21 +284,22 @@ fuzzyResults <- fuzzyClusters(clustered) #537.99
 ####################################
 
 # Get school coordinates 
-View(schoolBoundaries$features)
+View(schoolBoundaries)
 
 # test.csv has geocoordinates for the schools, load them in and filter the clean ones that were well located
 schoolLocations <- read.csv("test.csv")
-schoolBoundaries$features$properties$lat <- schoolLocations$lat
-schoolBoundaries$features$properties$long<- schoolLocations$long
+schoolBoundaries$properties$lat <- schoolLocations$lat
+schoolBoundaries$properties$long<- schoolLocations$long
 
 # Schools that can be easily iterated through
-easySchoolsCoords <- schoolBoundaries$features$properties %>% filter(lat >49 &
+easySchoolsCoords <- schoolBoundaries$properties %>% 
+                                      filter(lat >49 &
                                              lat <50 &
                                              long > c(-124) &
                                              long < c(-122))
 
 # We have two Lord Strathcona Elemtentaries, need to remove both because of run errors probably due to how data recorded
-easySchoolsPolygons <- schoolBoundaries$features[schoolBoundaries$features$properties$NAME %in% easySchoolsCoords$NAME & schoolBoundaries$features$properties$NAME != "Lord Strathcona Community Elementary",]
+easySchoolsPolygons <- schoolBoundaries[schoolBoundaries$properties$NAME %in% easySchoolsCoords$NAME & schoolBoundaries$properties$NAME != "Lord Strathcona Community Elementary",]
 # Error occurring at Shaugnessy as well, look into the cause
 
 easySchoolsPolygons$stringCoords <- paste0(easySchoolsPolygons$properties$lat, ",", easySchoolsPolygons$properties$long)
