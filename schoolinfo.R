@@ -13,6 +13,9 @@ library(xlsx)
 
 #importing the excel file containing all schools of vancouver (info intrested: #students in 2017/18)
 allSchoolinfo <- read.xlsx("excelSchoolContact", 1,as.data.frame=TRUE, header=TRUE, as.is = TRUE, stringsAsFactors = FALSE)
+test <- read.xlsx2("92-151-XBB_XLSX.xlsx", 1, as.data.frame=TRUE, header=TRUE, as.is = TRUE, stringsAsFactors = FALSE)
+
+
 rownames(schoolinfo)
 View(schoolinfo)
 schoolinfo[1:10,]
@@ -59,14 +62,16 @@ range2 <- 1:nrow(schoolinfo)
 for (i in range1){
   for(j in range2){
     if(schoollll$schoolCode[i] == schoolinfo$School.Code[j]){
-      print("hi")
         schoollll$enrolment17[i] <- schoolinfo$Enrolment.Total[j]
         schoollll$gradeRange[i] <- schoolinfo$Grade.Range[j]
         schoollll$schoolName[i] <- schoolinfo$School.Name[j]
+        schoollll$postalCode[i] <- schoolinfo$Postal.Code[j]
         break
     }
   }
 }
-
+View(schoollll)
 schoollll$schoolCode[1] == schoolinfo$School.Code[91]
 nrow(schoollll)
+
+
