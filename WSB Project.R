@@ -20,6 +20,9 @@ library(clue) # Hungarian algorithm
 library(dbscan)
 library(ppclust) # fuzzy
 library(Rfast) # rowMaxs
+library(maptools) # simplymap data
+library(raster) # plotting overlap
+library(rgeos) # getting overlap
 
 # Step 2: Grab a set of schools and their corresponding catchment regions  
 # Testing the file Neggyn found on the data custodian, url = http://data.vancouver.ca/datacatalogue/publicPlaces.htm
@@ -312,12 +315,17 @@ rownames(easySchoolsPolygons)
 # Now to build the structure of iterating based on the usable schools and the structure laid out above
 
 allPathsAllSchools <- rep(list(NA), length(easySchoolsPolygons$properties$NAME))
+schoolPolygonStore <- list()
 for(i in 1:length(easySchoolsPolygons$properties$NAME)){
   # Loop over each name in the easy schools data set
   
   # Set the bounding polygon and sample from it
   schoolTest <- schoolCatch(easySchoolsPolygons, easySchoolsPolygons$properties$NAME[i])
   schoolSample <- polygons(30, schoolTest)
+  
+  # Create a polygon object for the school's boundary to use later
+  poly1 <- Polygon(schoolTest)
+  schoolPolygonStore[[i]] <- Polygons(list(poly1), i)
   
   # Determine the leaders and build the clusters, though clustering can be done differently
   schoolLead <- leaders(schoolSample)
@@ -362,13 +370,44 @@ assign(paste0(easySchoolsPolygons$properties$NAME[i], " Paths"), (schoolMapWithP
 ############ NEW SAMPLING STUFF #################
 # Data is saved in the spatialfiles folder in downloads
 # Figure out how to grab and plot the coordinates from the object
-library(maptools)
 
-area <- readShapePoly(file.choose(), delete_null_obj = TRUE)
+
+area <- readShapePoly("SimplyAnalytics_Shapefiles_2018-02-20_21_22_35_0023a1e3447fdb31836536cc903f1310.shp", delete_null_obj = TRUE)
 area@plotOrder
 
 View(area)
 str(area@polygons@Polygons)
 
-# Use the following to access the coordinates in the area data, iteration
-area[,1]@polygons[[1]]@Polygons[[1]]@coords
+####### Getting the overlap ############
+# School polygon boundaries converted into Spatial Polygons
+together <- SpatialPolygons(schoolPolygonStore, 1:length(schoolPolygonStore))
+
+# Turn area dataframe into a list
+togetherAreaList[1] <- area[1,]@polygons
+for(l in 2:length(area)){
+  togetherAreaList[l] <- area[l,]@polygons
+}
+togetherArea <- SpatialPolygons(togetherAreaList, 1:length(area))
+
+# Find the intersection of the census data and school boundaries
+intersections <- intersect(togetherArea, together)
+
+# Adjust projections 
+projection(togetherArea) <- projection(together)
+
+# Plot the two maps overlaid by colour of overlap
+plot(togetherArea); plot(intersections, add=T, col=alpha('red', 0.2)); plot(together, axes=T, add = T, border = 1:length(together), lwd = 2); 
+
+
+# Helpers down below, things to help understand the above flow if I get lost 
+
+# Sr1 = Polygon(cbind(c(2,4,4,1,2),c(2,3,5,4,2)))
+# Sr2 = Polygon(cbind(c(5,4,2,5),c(2,3,2,2)))
+# Sr3 = Polygon(cbind(c(4,4,5,10,4),c(5,3,2,5,5)))
+# Sr4 = Polygon(cbind(c(5,6,6,5,5),c(4,4,3,3,4)), hole = TRUE)
+# 
+# Srs1 = Polygons(list(Sr1), "s1")
+# Srs2 = Polygons(list(Sr2), "s2")
+# Srs3 = Polygons(list(Sr3, Sr4), "s3/4")
+# SpP = SpatialPolygons(list(Srs1,Srs2,Srs3), 1:3)
+# plot(SpP, col = 1:3, pbg="white")
