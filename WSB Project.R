@@ -396,7 +396,7 @@ intersections <- intersect(togetherArea, together)
 projection(togetherArea) <- projection(together)
 
 # Plot the two maps overlaid by colour of overlap
-plot(togetherArea); plot(intersections, add=T, col=alpha('red', 0.2)); plot(together, axes=T, add = T, border = 1:length(together), lwd = 2); 
+plot(togetherArea); plot(intersections, add=T, col=alpha('red', 0.2)); plot(together, axes=T, add = T, border = 1:length(together), lwd = 2)
 
 
 # Helpers down below, things to help understand the above flow if I get lost 
@@ -411,3 +411,77 @@ plot(togetherArea); plot(intersections, add=T, col=alpha('red', 0.2)); plot(toge
 # Srs3 = Polygons(list(Sr3, Sr4), "s3/4")
 # SpP = SpatialPolygons(list(Srs1,Srs2,Srs3), 1:3)
 # plot(SpP, col = 1:3, pbg="white")
+
+
+# Try to get spatial polygon sampling based on census results of each area
+  # Need to first get all the true instances from intersections 
+  easyIntersections <- gIntersects( together, togetherArea, byid = T)
+
+  # The rows of easyIntersections are the schools (57), the columns are the census areas (992)
+  # So for a given school we can identify the census areas it crosses if we take the transpose
+  # easyIntersections <- t(easyIntersections)
+  
+  # We now have 992 rows and 57 columns for schools. Consider the census areas for school 1
+  interArea <- easyIntersections[which(easyIntersections[,2] == TRUE), 2]
+  
+  # The results for school 1 show that the overlap exists with these regions: "29"  "427" "428" "786" "788" "791" "792" "793" "794" "795" "796" "797" "798" "801" "802" "836" "837"
+  # Create a new plot to verify this
+  togetherTest <- SpatialPolygons(list(schoolPolygonStore[[2]]), 1:1)
+  intersectionsTest <- intersect(togetherArea, togetherTest)
+  
+  # Adjust projections 
+  projection(togetherArea) <- projection(togetherTest)
+  
+  # Plot the two maps overlaid by colour of overlap
+  plot(togetherArea); plot(intersectionsTest, add=T, col=alpha('red', 0.2)); plot(togetherTest, axes=T, add = T, border = 1:length(together), lwd = 2)
+  
+  # Good, plot shows as desired
+  # Now we need to get the data from each of these polygons w.r.t. the population contained
+  area$rownames <- rownames(easyIntersections)
+  sizeOfRegion <- area[area$rownames %in% names(interArea),]$VALUE0
+  
+  # Now using the size of region we can define a pseudo probability selector
+  sizeOfRegion <- sizeOfRegion / sum(sizeOfRegion)
+  
+  # We can now do weighted sampling, using the sizeOfRegion as a probability generator
+  polygonsToUse <- sample(names(interArea), size = 30, prob = sizeOfRegion, replace = TRUE)
+  
+  # Adjust the sampling area of each zone to its intersection with the overall catchment
+  plot(togetherArea) 
+  adjustedSamplingZone <- list()
+  for(i in 1:length(names(interArea))){
+    adjustedSamplingZone[[i]] <- gIntersection(togetherTest, area[area$rownames %in% names(interArea)[i],])
+    plot(adjustedSamplingZone[[i]], add=T, col = "blue")
+  }
+  plot(togetherTest, axes=T, add = T, border = 1:length(together), lwd = 2); 
+  # Plot created here shows that the zones in adjustedSamplingZone can be correctly sampled from
+  
+  # Sample the points according to spsample
+  numberPerRegion <- data.frame(polygonsToUse, stringsAsFactors = FALSE) %>% group_by(polygonsToUse) %>% summarize(n = n())
+  houses <- data.frame()
+  j <- 1 # Manual iteration over the other dataframe as it is indexed differently
+  for(i in 1:length(names(interArea))){
+    if(names(interArea)[i] %in% numberPerRegion$polygonsToUse){
+      Ps <- SpatialPolygons(adjustedSamplingZone[[i]]@polygons, proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"))
+      samp <- spsample(Ps, n = as.numeric(numberPerRegion[j, "n"]), type = "random")@coords %>% as.data.frame()
+      names(samp) <- c("x", "y")
+      houses <- rbind(houses, samp)
+      j <- j + 1
+    }
+  }
+  
+  
+  
+  # Check if they plot correctly
+  plot(togetherArea); 
+  #plot(intersectionsTest, add=T, col=alpha('red', 0.2)); 
+  plot(togetherTest, axes=T, add = T, border = 1:length(together), lwd = 2); 
+  points(houses, col = "green", lwd = 2)
+  
+  # Plot reasonably well
+  
+  
+  
+############## STILL TO DO ###############
+  # Set up the above formulation over all school catchments
+  # Start integrating these more accurate samples with the clustering and TSP work
