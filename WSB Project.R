@@ -161,7 +161,7 @@ charlesSample <- polygons(30, charlesDickensTest)
 lead <- leaders(charlesSample)
 clustered <- groups(lead)
 # Trying the routes out with clustered data, then with the testclust from below
-charlesRoutes <- routeCreator(fuzzyResults)
+charlesRoutes <- routeCreator(testSet2)
 charlesDickensLocation <- "49.254957,-123.083038"
 
 # Test call for the 4th route: Key, origin, waypoints, destination
@@ -177,7 +177,7 @@ schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14
 schoolMapWithPoints <- ggmap(schoolMap) + 
   geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
   geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
-  geom_point(data = fuzzyResults, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
+  geom_point(data = testSet2, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
 
 # Graph updated with paths
 allPaths <- data.frame()
