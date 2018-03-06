@@ -157,35 +157,35 @@ routeCreator <- function(clusterDF){
 
 ################ Test Google Call for Charles Dickens and simulated data ##############
 
-charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
-charlesSample <- polygons(30, charlesDickensTest)
-lead <- leaders(charlesSample)
-clustered <- groups(lead)
-# Trying the routes out with clustered data, then with the testclust from below
-charlesRoutes <- routeCreator(clustered)
-charlesDickensLocation <- "49.254957,-123.083038"
+# charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
+# charlesSample <- polygons(30, charlesDickensTest)
+# lead <- leaders(charlesSample)
+# clustered <- groups(lead)
+# # Trying the routes out with clustered data, then with the testclust from below
+# charlesRoutes <- routeCreator(clustered)
+# charlesDickensLocation <- "49.254957,-123.083038"
 
 # Test call for the 4th route: Key, origin, waypoints, destination
 ##googleCall <- googleAPICaller(googleKey, charlesRoutes[[4]][[1]], charlesRoutes[[4]][[2]], charlesDickensLocation)
 
-# Iterator call for all routes
-allRoutesToSchool <- iterGoogleAPI(googleKey, charlesRoutes, charlesDickensLocation)
-routePaths <- allRoutesToSchool[[1]]
-routeMeasures <- allRoutesToSchool[[2]]
-
-# Graph with data points
-schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14)
-schoolMapWithPoints <- ggmap(schoolMap) + 
-  geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
-  geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
-  geom_point(data = clustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
-
-# Graph updated with paths
-allPaths <- data.frame()
-for(j in 1:length(routePaths)){
-  allPaths <- rbind(allPaths, routePaths[[j]])
-}
-allPathsPlot <- schoolMapWithPoints + geom_path(data = allPaths, aes(x = lng, y = lat, size = 2, group = cluster, colour = as.factor(cluster)))
+# # Iterator call for all routes
+# allRoutesToSchool <- iterGoogleAPI(googleKey, charlesRoutes, charlesDickensLocation)
+# routePaths <- allRoutesToSchool[[1]]
+# routeMeasures <- allRoutesToSchool[[2]]
+# 
+# # Graph with data points
+# schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14)
+# schoolMapWithPoints <- ggmap(schoolMap) + 
+#   geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
+#   geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
+#   geom_point(data = clustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
+# 
+# # Graph updated with paths
+# allPaths <- data.frame()
+# for(j in 1:length(routePaths)){
+#   allPaths <- rbind(allPaths, routePaths[[j]])
+# }
+# allPathsPlot <- schoolMapWithPoints + geom_path(data = allPaths, aes(x = lng, y = lat, size = 2, group = cluster, colour = as.factor(cluster)))
 
 # Collection of route properties (length, distance) stored in routeMeasures
 # Convert these measures into walking times and distances of each student
@@ -205,7 +205,6 @@ studentTravels <- function(allRouteMeasures){
   return(studentMeasure)
 }
 
-testTravels4 <- studentTravels(routeMeasures)
 
 
 ############# FUNCTIONAL ##################
@@ -230,7 +229,7 @@ recluster <- function(clusters){
   return(reCluster)
 }
 
-testClust <- recluster(clustered)
+# testClust <- recluster(clustered)
 
 # Another function idea: Use hierarchical clustering based on geodesic distance matrix
 hierClustering <- function(coordinates){
@@ -266,7 +265,7 @@ hierClustering <- function(coordinates){
   return(clusters)
 }
 
-testSet2 <- hierClustering(clustered)
+# testSet2 <- hierClustering(clustered)
 
 
 # Fuzzy clustering works for path generation though it seems a leader is occasionally misclassified despite its route going fine
@@ -284,7 +283,7 @@ fuzzyClusters <- function(coordinates){
   return(coordinates)
 }
 
-fuzzyResults <- fuzzyClusters(clustered) #537.99
+# fuzzyResults <- fuzzyClusters(clustered) #537.99
 
 # Based on the first set of data used, fuzzy clustering looks to be the best fit for this work though we can do more tests to verify
 
@@ -293,7 +292,7 @@ fuzzyResults <- fuzzyClusters(clustered) #537.99
 ####################################
 
 # Get school coordinates 
-View(schoolBoundaries)
+# View(schoolBoundaries)
 
 # test.csv has geocoordinates for the schools, load them in and filter the clean ones that were well located
 schoolLocations <- read.csv("test.csv")
@@ -371,19 +370,21 @@ assign(paste0(easySchoolsPolygons$properties$NAME[i], " Paths"), (schoolMapWithP
 ############ NEW SAMPLING STUFF #################
 # Data is saved in the spatialfiles folder in downloads
 # Figure out how to grab and plot the coordinates from the object
+# This stuff is to be done globally as it relates each data set to the other.
+  # Responsible for overlap of schoolcatchments and census data
 
 
 area <- readShapePoly("SimplyAnalytics_Shapefiles_2018-02-20_21_22_35_0023a1e3447fdb31836536cc903f1310.shp", delete_null_obj = TRUE)
-area@plotOrder
+# area@plotOrder
 
-View(area)
-str(area@polygons@Polygons)
+# View(area)
 
 ####### Getting the overlap ############
 # School polygon boundaries converted into Spatial Polygons
 together <- SpatialPolygons(schoolPolygonStore, 1:length(schoolPolygonStore))
 
 # Turn area dataframe into a list
+togetherAreaList <- list()
 togetherAreaList[1] <- area[1,]@polygons
 for(l in 2:length(area)){
   togetherAreaList[l] <- area[l,]@polygons
@@ -413,30 +414,24 @@ plot(togetherArea); plot(intersections, add=T, col=alpha('red', 0.2)); plot(toge
 # SpP = SpatialPolygons(list(Srs1,Srs2,Srs3), 1:3)
 # plot(SpP, col = 1:3, pbg="white")
 
-
+########################### SAMPLING STUFF TO BE MADE INTO A FUNCTION ##########################
 # Try to get spatial polygon sampling based on census results of each area
   # Need to first get all the true instances from intersections 
-  easyIntersections <- gIntersects( together, togetherArea, byid = T)
+  easyIntersections <- gIntersects( together, togetherArea, byid = T) # Global
 
-  # The rows of easyIntersections are the schools (57), the columns are the census areas (992)
-  # So for a given school we can identify the census areas it crosses if we take the transpose
-  # easyIntersections <- t(easyIntersections)
-  
+# The function to do all the sampling
+overlapSampler <- function(schoolNum){
   # We now have 992 rows and 57 columns for schools. Consider the census areas for school 1
-  interArea <- easyIntersections[which(easyIntersections[,2] == TRUE), 2]
+  interArea <- easyIntersections[which(easyIntersections[,schoolNum] == TRUE), schoolNum]
   
-  # The results for school 1 show that the overlap exists with these regions: "29"  "427" "428" "786" "788" "791" "792" "793" "794" "795" "796" "797" "798" "801" "802" "836" "837"
   # Create a new plot to verify this
-  togetherTest <- SpatialPolygons(list(schoolPolygonStore[[2]]), 1:1)
+  # schoolpolygonStore should be indexed the same way easyIntersections is
+  togetherTest <- SpatialPolygons(list(schoolPolygonStore[[schoolNum]]), 1:1)
   intersectionsTest <- intersect(togetherArea, togetherTest)
   
   # Adjust projections 
   projection(togetherArea) <- projection(togetherTest)
   
-  # Plot the two maps overlaid by colour of overlap
-  plot(togetherArea); plot(intersectionsTest, add=T, col=alpha('red', 0.2)); plot(togetherTest, axes=T, add = T, border = 1:length(together), lwd = 2)
-  
-  # Good, plot shows as desired
   # Now we need to get the data from each of these polygons w.r.t. the population contained
   area$rownames <- rownames(easyIntersections)
   sizeOfRegion <- area[area$rownames %in% names(interArea),]$VALUE0
@@ -447,38 +442,124 @@ plot(togetherArea); plot(intersections, add=T, col=alpha('red', 0.2)); plot(toge
   # We can now do weighted sampling, using the sizeOfRegion as a probability generator
   polygonsToUse <- sample(names(interArea), size = 30, prob = sizeOfRegion, replace = TRUE)
   
-  # Adjust the sampling area of each zone to its intersection with the overall catchment
-  plot(togetherArea) 
+  # Create the adjusted sampling zone
   adjustedSamplingZone <- list()
   for(i in 1:length(names(interArea))){
     adjustedSamplingZone[[i]] <- gIntersection(togetherTest, area[area$rownames %in% names(interArea)[i],])
-    plot(adjustedSamplingZone[[i]], add=T, col = "blue")
   }
-  plot(togetherTest, axes=T, add = T, border = 1:length(together), lwd = 2); 
-  # Plot created here shows that the zones in adjustedSamplingZone can be correctly sampled from
   
   # Sample the points according to spsample
   numberPerRegion <- data.frame(polygonsToUse, stringsAsFactors = FALSE) %>% group_by(polygonsToUse) %>% summarize(n = n())
   houses <- data.frame()
+  
   j <- 1 # Manual iteration over the other dataframe as it is indexed differently
   for(i in 1:length(names(interArea))){
     if(names(interArea)[i] %in% numberPerRegion$polygonsToUse){
       Ps <- SpatialPolygons(adjustedSamplingZone[[i]]@polygons, proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"))
-      samp <- spsample(Ps, n = as.numeric(numberPerRegion[j, "n"]), type = "random")@coords %>% as.data.frame()
+      samp <- spsample(Ps, n = as.numeric(numberPerRegion[j, "n"]), type = "random", iter = 10)@coords %>% as.data.frame()
       names(samp) <- c("x", "y")
       houses <- rbind(houses, samp)
       j <- j + 1
     }
   }
-  
-  
-  
-  # Check if they plot correctly
-  plot(togetherArea); 
-  #plot(intersectionsTest, add=T, col=alpha('red', 0.2)); 
-  plot(togetherTest, axes=T, add = T, border = 1:length(together), lwd = 2); 
-  points(houses, col = "green", lwd = 2)
-  
+  return(list(togetherTest, houses))
+}
+
+proportionalSampleRegion <- list()
+proportionalSampleHouses <- list()
+
+for( i in 1:length(together)){
+  print(i)
+  overlap <- overlapSampler(i)
+  proportionalSampleRegion[[i]] <- overlap[1]
+  proportionalSampleHouses[[i]] <- overlap[2]
+}
+
+
+plot(togetherArea); 
+#plot(intersectionsTest, add=T, col=alpha('red', 0.2)); 
+plot(proportionalSampleRegion[[42]][[1]], axes=T, add = T, border = 1:length(together), lwd = 2); 
+points(proportionalSampleHouses[[42]][[1]], col = "green", lwd = 2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 
+#   # The rows of easyIntersections are the schools (57), the columns are the census areas (992)
+#   # So for a given school we can identify the census areas it crosses if we take the transpose
+#   # easyIntersections <- t(easyIntersections)
+#   
+#   # We now have 992 rows and 57 columns for schools. Consider the census areas for school 1
+#   interArea <- easyIntersections[which(easyIntersections[,2] == TRUE), 2]
+#   
+#   # The results for school 1 show that the overlap exists with these regions: "29"  "427" "428" "786" "788" "791" "792" "793" "794" "795" "796" "797" "798" "801" "802" "836" "837"
+#   # Create a new plot to verify this
+#   togetherTest <- SpatialPolygons(list(schoolPolygonStore[[2]]), 1:1)
+#   intersectionsTest <- intersect(togetherArea, togetherTest)
+#   
+#   # Adjust projections 
+#   projection(togetherArea) <- projection(togetherTest)
+#   
+#   # Plot the two maps overlaid by colour of overlap
+#   plot(togetherArea); plot(intersectionsTest, add=T, col=alpha('red', 0.2)); plot(togetherTest, axes=T, add = T, border = 1:length(together), lwd = 2)
+#   
+#   # Good, plot shows as desired
+#   # Now we need to get the data from each of these polygons w.r.t. the population contained
+#   area$rownames <- rownames(easyIntersections)
+#   sizeOfRegion <- area[area$rownames %in% names(interArea),]$VALUE0
+#   
+#   # Now using the size of region we can define a pseudo probability selector
+#   sizeOfRegion <- sizeOfRegion / sum(sizeOfRegion)
+#   
+#   # We can now do weighted sampling, using the sizeOfRegion as a probability generator
+#   polygonsToUse <- sample(names(interArea), size = 30, prob = sizeOfRegion, replace = TRUE)
+#   
+#   # Adjust the sampling area of each zone to its intersection with the overall catchment
+#   plot(togetherArea) 
+#   adjustedSamplingZone <- list()
+#   for(i in 1:length(names(interArea))){
+#     adjustedSamplingZone[[i]] <- gIntersection(togetherTest, area[area$rownames %in% names(interArea)[i],])
+#     plot(adjustedSamplingZone[[i]], add=T, col = "blue")
+#   }
+#   plot(togetherTest, axes=T, add = T, border = 1:length(together), lwd = 2); 
+#   # Plot created here shows that the zones in adjustedSamplingZone can be correctly sampled from
+#   
+#   # Sample the points according to spsample
+#   numberPerRegion <- data.frame(polygonsToUse, stringsAsFactors = FALSE) %>% group_by(polygonsToUse) %>% summarize(n = n())
+#   houses <- data.frame()
+#   j <- 1 # Manual iteration over the other dataframe as it is indexed differently
+#   for(i in 1:length(names(interArea))){
+#     if(names(interArea)[i] %in% numberPerRegion$polygonsToUse){
+#       Ps <- SpatialPolygons(adjustedSamplingZone[[i]]@polygons, proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"))
+#       samp <- spsample(Ps, n = as.numeric(numberPerRegion[j, "n"]), type = "random", iter = 10)@coords %>% as.data.frame()
+#       names(samp) <- c("x", "y")
+#       houses <- rbind(houses, samp)
+#       j <- j + 1
+#     }
+#   }
+#   
+#   
+#   
+#   # Check if they plot correctly
+#   plot(togetherArea); 
+#   #plot(intersectionsTest, add=T, col=alpha('red', 0.2)); 
+#   plot(togetherTest, axes=T, add = T, border = 1:length(together), lwd = 2); 
+#   points(houses, col = "green", lwd = 2)
+#   
   # Plot reasonably well
   
   
