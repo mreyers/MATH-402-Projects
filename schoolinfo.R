@@ -74,4 +74,4 @@ View(schoollll)
 schoollll$schoolCode[1] == schoolinfo$School.Code[91]
 nrow(schoollll)
 
-
+write.xlsx(schoollll, "schoolinformatoin.xlsx")
