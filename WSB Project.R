@@ -143,7 +143,6 @@ routeCreator <- function(clusterDF){
   leaders <- clusterDF %>% filter(leader == TRUE)
   nodes <- clusterDF %>% filter(leader != TRUE)
   textData <- nodes %>% mutate(combo = paste0(.$y, ",", .$x))
-  str(textData)
   routeList <- split(textData, textData$clusters)
   routes <- list()
   result <- list()
@@ -222,7 +221,7 @@ recluster <- function(clusters){
     nonLeader[nonLeader$tempID == i, "newClusters"] <- optAssignments[i]
   }
   #print(nonLeader)
-  nonLeader <- nonLeader %>% mutate(clusters = newClusters) %>% select(-tempID, -newClusters)
+  nonLeader <- nonLeader %>% mutate(clusters = newClusters) %>% dplyr::select(-tempID, -newClusters)
   rownames(nonLeader) <- NULL
   rownames(leader) <- NULL
   reCluster <- rbind(leader, nonLeader)
@@ -314,7 +313,68 @@ easySchoolsPolygons$stringCoords <- paste0(easySchoolsPolygons$properties$lat, "
 rownames(easySchoolsPolygons)
 # Now to build the structure of iterating based on the usable schools and the structure laid out above
 
-allPathsAllSchools <- rep(list(NA), length(easySchoolsPolygons$properties$NAME))
+
+# Old but functional, commented out to save runtime
+
+# allPathsAllSchools <- rep(list(NA), length(easySchoolsPolygons$properties$NAME))
+# schoolPolygonStore <- list()
+# for(i in 1:length(easySchoolsPolygons$properties$NAME)){
+#   # Loop over each name in the easy schools data set
+#   
+#   # Set the bounding polygon and sample from it
+#   schoolTest <- schoolCatch(easySchoolsPolygons, easySchoolsPolygons$properties$NAME[i])
+#   schoolSample <- polygons(30, schoolTest)
+#   
+#   # Create a polygon object for the school's boundary to use later
+#   poly1 <- Polygon(schoolTest)
+#   schoolPolygonStore[[i]] <- Polygons(list(poly1), i)
+#   
+#   # Determine the leaders and build the clusters, though clustering can be done differently
+#   schoolLead <- leaders(schoolSample)
+#   schoolClustered <- groups(schoolLead) # Can recluster schoolClustered according to the functions designed
+#   
+#   # Build routes and identify the location of the school
+#   schoolRoutes <- routeCreator(schoolClustered)
+#   schoolLocation <- easySchoolsPolygons$stringCoords[i]
+# 
+#   # Iterator call for all routes to all schools. Permanent results will be stored later so this is not interferred with
+#   allRoutesToAllSchools <- iterGoogleAPI(googleKey, schoolRoutes, schoolLocation)
+#   routePathsAll <- allRoutesToAllSchools[[1]]
+#   routeMeasuresAll <- allRoutesToAllSchools[[2]]
+# 
+#   # Graph with data points
+#   schoolMap <- get_map(location = c(lon = easySchoolsPolygons$properties$long[i] ,lat = easySchoolsPolygons$properties$lat[i]), zoom = 14)
+#   
+#   assign(paste0(easySchoolsPolygons$properties$NAME[i]),  (ggmap(schoolMap) + 
+#     geom_point(aes(x = easySchoolsPolygons$properties$long[i], y = easySchoolsPolygons$properties$lat[i], size = 3, col = "black", alpha = 0.3, shape = 13)) + theme(legend.position = "none") + 
+#     geom_polygon(data = schoolTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
+#     geom_point(data = schoolClustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))))
+#   
+#   # Do it a second time so it is easy to call the map for route setting
+#   schoolMapWithPoints <- ggmap(schoolMap) + 
+#     geom_point(aes(x = easySchoolsPolygons$properties$long[i], y = easySchoolsPolygons$properties$lat[i], size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
+#     geom_polygon(data = schoolTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
+#     geom_point(data = schoolClustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
+# 
+# # Graph updated with paths
+# 
+# for(j in 1:length(routePathsAll)){
+#   allPathsAllSchools[[i]] <- rbind(allPathsAllSchools[[i]], routePathsAll[[j]])
+# }
+# allPathsAllSchools[[i]] <- allPathsAllSchools[[i]] %>% filter(!is.na(lat))
+# 
+# assign(paste0(easySchoolsPolygons$properties$NAME[i], " Paths"), (schoolMapWithPoints + geom_path(data = allPathsAllSchools[[i]], aes(x = lng, y = lat, size = 2, group = cluster, colour = as.factor(cluster)))))
+# 
+# }
+
+
+
+############ NEW SAMPLING STUFF #################
+# Data is saved in the spatialfiles folder in downloads
+# Figure out how to grab and plot the coordinates from the object
+# This stuff is to be done globally as it relates each data set to the other.
+  # Responsible for overlap of schoolcatchments and census data
+
 schoolPolygonStore <- list()
 for(i in 1:length(easySchoolsPolygons$properties$NAME)){
   # Loop over each name in the easy schools data set
@@ -326,53 +386,7 @@ for(i in 1:length(easySchoolsPolygons$properties$NAME)){
   # Create a polygon object for the school's boundary to use later
   poly1 <- Polygon(schoolTest)
   schoolPolygonStore[[i]] <- Polygons(list(poly1), i)
-  
-  # Determine the leaders and build the clusters, though clustering can be done differently
-  schoolLead <- leaders(schoolSample)
-  schoolClustered <- groups(schoolLead) # Can recluster schoolClustered according to the functions designed
-  
-  # Build routes and identify the location of the school
-  schoolRoutes <- routeCreator(schoolClustered)
-  schoolLocation <- easySchoolsPolygons$stringCoords[i]
-
-  # Iterator call for all routes to all schools. Permanent results will be stored later so this is not interferred with
-  allRoutesToAllSchools <- iterGoogleAPI(googleKey, schoolRoutes, schoolLocation)
-  routePathsAll <- allRoutesToAllSchools[[1]]
-  routeMeasuresAll <- allRoutesToAllSchools[[2]]
-
-  # Graph with data points
-  schoolMap <- get_map(location = c(lon = easySchoolsPolygons$properties$long[i] ,lat = easySchoolsPolygons$properties$lat[i]), zoom = 14)
-  
-  assign(paste0(easySchoolsPolygons$properties$NAME[i]),  (ggmap(schoolMap) + 
-    geom_point(aes(x = easySchoolsPolygons$properties$long[i], y = easySchoolsPolygons$properties$lat[i], size = 3, col = "black", alpha = 0.3, shape = 13)) + theme(legend.position = "none") + 
-    geom_polygon(data = schoolTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
-    geom_point(data = schoolClustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))))
-  
-  # Do it a second time so it is easy to call the map for route setting
-  schoolMapWithPoints <- ggmap(schoolMap) + 
-    geom_point(aes(x = easySchoolsPolygons$properties$long[i], y = easySchoolsPolygons$properties$lat[i], size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
-    geom_polygon(data = schoolTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
-    geom_point(data = schoolClustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
-
-# Graph updated with paths
-
-for(j in 1:length(routePathsAll)){
-  allPathsAllSchools[[i]] <- rbind(allPathsAllSchools[[i]], routePathsAll[[j]])
 }
-allPathsAllSchools[[i]] <- allPathsAllSchools[[i]] %>% filter(!is.na(lat))
-
-assign(paste0(easySchoolsPolygons$properties$NAME[i], " Paths"), (schoolMapWithPoints + geom_path(data = allPathsAllSchools[[i]], aes(x = lng, y = lat, size = 2, group = cluster, colour = as.factor(cluster)))))
-
-}
-
-
-
-############ NEW SAMPLING STUFF #################
-# Data is saved in the spatialfiles folder in downloads
-# Figure out how to grab and plot the coordinates from the object
-# This stuff is to be done globally as it relates each data set to the other.
-  # Responsible for overlap of schoolcatchments and census data
-
 
 area <- readShapePoly("SimplyAnalytics_Shapefiles_2018-02-20_21_22_35_0023a1e3447fdb31836536cc903f1310.shp", delete_null_obj = TRUE)
 # area@plotOrder
@@ -480,6 +494,90 @@ plot(togetherArea);
 #plot(intersectionsTest, add=T, col=alpha('red', 0.2)); 
 plot(proportionalSampleRegion[[42]][[1]], axes=T, add = T, border = 1:length(together), lwd = 2); 
 points(proportionalSampleHouses[[42]][[1]], col = "green", lwd = 2)
+
+# proportionalSampleRegion and proportionalSampleHouses now contain the desired regions and data points
+# Now the points need to be clustered and routes created
+allRoutesToAllSchools <- list(list(NA), length(easySchoolsPolygons$properties$NAME))
+routePathsAll <- list(list(NA), length(easySchoolsPolygons$properties$NAME))
+routeMeasuresAll <- list(list(NA), length(easySchoolsPolygons$properties$NAME))
+scoringResults <- data.frame(knn = NA, kmeans = NA, hier = NA, fuzzy = NA)
+for( i in 1:2){#length(easySchoolsPolygons$properties$NAME)){
+  lead <- leaders(proportionalSampleHouses[[i]][[1]])
+  
+  clustered <- groups(lead)
+  print(clustered)
+  kmeansClust <- recluster(clustered)
+  hierClust <- hierClustering(clustered)
+  fuzzyClust <- fuzzyClusters(clustered)
+  
+  routes <- list()
+  routes[[1]] <- routeCreator(clustered)
+  routes[[2]] <- routeCreator(kmeansClust)
+  routes[[3]] <- routeCreator(hierClust)
+  routes[[4]] <- routeCreator(fuzzyClust)
+  
+  schoolLocation <- easySchoolsPolygons$stringCoords[i]
+  allClustersToASchool <- list()
+  for(j in 1:4){
+    allClustersToASchool <- iterGoogleAPI(googleKey, routes[[j]], schoolLocation)
+  }
+  
+  # Probably do scoring function here and proceed with best score
+  allRoutesToAllSchools[[i]] <- allClustersToASchool
+  routePathsAll[[i]] <- allRoutesToAllSchools[[i]][[1]]
+  routeMeasuresAll[[i]] <- allRoutesToAllSchools[[i]][[2]]
+  # Pseudo code for later
+    #scoringResults$column <- clusteredTypeResults
+  
+  
+  # schoolMap <- get_map(location = c(lon = easySchoolsPolygons$properties$long[i] ,lat = easySchoolsPolygons$properties$lat[i]), zoom = 14)
+  # sampleRegionSimplified <- proportionalSampleRegion[[i]][[1]]@polygons[[1]]@Polygons[[1]]@coords %>% as.data.frame()
+  # 
+  #   assign(paste0(easySchoolsPolygons$properties$NAME[i]),  (ggmap(schoolMap) +
+  #     geom_point(aes(x = easySchoolsPolygons$properties$long[i], y = easySchoolsPolygons$properties$lat[i], size = 3, col = "black", alpha = 0.3, shape = 13)) + theme(legend.position = "none") +
+  #     geom_polygon(data = sampleRegionSimplified, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") +
+  #     geom_point(data = clustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))))
+  # 
+  #   # Do it a second time so it is easy to call the map for route setting
+  #   schoolMapWithPoints <- ggmap(schoolMap) +
+  #     geom_point(aes(x = easySchoolsPolygons$properties$long[i], y = easySchoolsPolygons$properties$lat[i], size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") +
+  #     geom_polygon(data = sampleRegionSimplified, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") +
+  #     geom_point(data = clustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
+}
+
+#   # Build routes and identify the location of the school
+#   schoolRoutes <- routeCreator(schoolClustered)
+#   schoolLocation <- easySchoolsPolygons$stringCoords[i]
+# 
+#   # Iterator call for all routes to all schools. Permanent results will be stored later so this is not interferred with
+#   
+#   routePathsAll <- allRoutesToAllSchools[[1]]
+#   routeMeasuresAll <- allRoutesToAllSchools[[2]]
+# 
+#   # Graph with data points
+#   schoolMap <- get_map(location = c(lon = easySchoolsPolygons$properties$long[i] ,lat = easySchoolsPolygons$properties$lat[i]), zoom = 14)
+#   
+#   assign(paste0(easySchoolsPolygons$properties$NAME[i]),  (ggmap(schoolMap) + 
+#     geom_point(aes(x = easySchoolsPolygons$properties$long[i], y = easySchoolsPolygons$properties$lat[i], size = 3, col = "black", alpha = 0.3, shape = 13)) + theme(legend.position = "none") + 
+#     geom_polygon(data = schoolTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
+#     geom_point(data = schoolClustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))))
+#   
+#   # Do it a second time so it is easy to call the map for route setting
+#   schoolMapWithPoints <- ggmap(schoolMap) + 
+#     geom_point(aes(x = easySchoolsPolygons$properties$long[i], y = easySchoolsPolygons$properties$lat[i], size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
+#     geom_polygon(data = schoolTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
+#     geom_point(data = schoolClustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
+# 
+# # Graph updated with paths
+# 
+# for(j in 1:length(routePathsAll)){
+#   allPathsAllSchools[[i]] <- rbind(allPathsAllSchools[[i]], routePathsAll[[j]])
+# }
+# allPathsAllSchools[[i]] <- allPathsAllSchools[[i]] %>% filter(!is.na(lat))
+# 
+# assign(paste0(easySchoolsPolygons$properties$NAME[i], " Paths"), (schoolMapWithPoints + geom_path(data = allPathsAllSchools[[i]], aes(x = lng, y = lat, size = 2, group = cluster, colour = as.factor(cluster)))))
+# 
+# }
 
 
 
