@@ -501,11 +501,10 @@ allRoutesToAllSchools <- list(list(NA), length(easySchoolsPolygons$properties$NA
 routePathsAll <- list(list(NA), length(easySchoolsPolygons$properties$NAME))
 routeMeasuresAll <- list(list(NA), length(easySchoolsPolygons$properties$NAME))
 scoringResults <- data.frame(knn = NA, kmeans = NA, hier = NA, fuzzy = NA)
-for( i in 1:2){#length(easySchoolsPolygons$properties$NAME)){
+for( i in 1:4){#length(easySchoolsPolygons$properties$NAME)){
   lead <- leaders(proportionalSampleHouses[[i]][[1]])
   
   clustered <- groups(lead)
-  print(clustered)
   kmeansClust <- recluster(clustered)
   hierClust <- hierClustering(clustered)
   fuzzyClust <- fuzzyClusters(clustered)
@@ -518,16 +517,22 @@ for( i in 1:2){#length(easySchoolsPolygons$properties$NAME)){
   
   schoolLocation <- easySchoolsPolygons$stringCoords[i]
   allClustersToASchool <- list()
+  pathHolder <- list(NA, 4)
+  measureHolder <- list(NA, 4)
   for(j in 1:4){
+    print(paste0(i, " ", j))
     allClustersToASchool <- iterGoogleAPI(googleKey, routes[[j]], schoolLocation)
+    pathHolder[[j]] <- allClustersToASchool[[1]]
+    measureHolder[[j]] <- allClustersToASchool[[2]]
   }
   
+  routePathsAll[[i]] <- pathHolder
+  routeMeasuresAll[[j]] <- measureHolder
   # Probably do scoring function here and proceed with best score
-  allRoutesToAllSchools[[i]] <- allClustersToASchool
-  routePathsAll[[i]] <- allRoutesToAllSchools[[i]][[1]]
-  routeMeasuresAll[[i]] <- allRoutesToAllSchools[[i]][[2]]
   # Pseudo code for later
-    #scoringResults$column <- clusteredTypeResults
+  #scoringResults$column <- clusteredTypeResults  
+  
+
   
   
   # schoolMap <- get_map(location = c(lon = easySchoolsPolygons$properties$long[i] ,lat = easySchoolsPolygons$properties$lat[i]), zoom = 14)
