@@ -23,6 +23,10 @@ library(Rfast) # rowMaxs
 library(maptools) # simplymap data
 library(raster) # plotting overlap
 library(rgeos) # getting overlap
+library(data.table) # turning lists into write.csv data frames
+
+# Step 1: Set seed for reproducibility when running from start
+set.seed(1)
 
 # Step 2: Grab a set of schools and their corresponding catchment regions  
 # Testing the file Neggyn found on the data custodian, url = http://data.vancouver.ca/datacatalogue/publicPlaces.htm
@@ -67,7 +71,17 @@ polygons <- function(n, catchLongLat){
 leaders <- function(sampledPoints){
   nPoints <- dim(sampledPoints)[1]
   uniPoints <- runif(nPoints)
-  leader <- (uniPoints > 0.65)
+  
+  # If we didnt get any leaders, resample
+  if( length((uniPoints > 0.65)) == 0){
+    uniPoints <- runif(nPoints)
+    leader <- (uniPoints > 0.65)
+  }
+  # If we got too many leaders, sample from them
+  if( length((uniPoints > 0.65)) >= 15){
+    leader <- (uniPoints > 0.75)
+  }
+  
   leaderPoints <- cbind(sampledPoints, leader) %>% as.data.frame()
   return(leaderPoints)
 }
@@ -91,7 +105,7 @@ groups <- function(nodesAndLeaders){
 ##### Google routing distance API work #####
 ############################################
 
-googleKey <- "AIzaSyDNSh3L8O1buhgauPwqqj6_Hb14HzgCXcg"
+googleKey <- "AIzaSyCO6s6_vat14sb5HDNvayx7JN9h8XXrxzc"
 
 # Takes Lat, Long style coordinates
 googleAPICaller <- function(key, origin, waypoints, dest){
@@ -156,51 +170,61 @@ routeCreator <- function(clusterDF){
 
 ################ Test Google Call for Charles Dickens and simulated data ##############
 
-# charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
-# charlesSample <- polygons(30, charlesDickensTest)
-# lead <- leaders(charlesSample)
-# clustered <- groups(lead)
-# # Trying the routes out with clustered data, then with the testclust from below
-# charlesRoutes <- routeCreator(clustered)
-# charlesDickensLocation <- "49.254957,-123.083038"
+ charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
+ charlesSample <- polygons(30, charlesDickensTest)
+ lead <- leaders(charlesSample)
+ clustered <- groups(lead)
+ # Trying the routes out with clustered data, then with the testclust from below
+ charlesRoutes <- routeCreator(clustered)
+ charlesDickensLocation <- "49.254957,-123.083038"
 
 # Test call for the 4th route: Key, origin, waypoints, destination
-##googleCall <- googleAPICaller(googleKey, charlesRoutes[[4]][[1]], charlesRoutes[[4]][[2]], charlesDickensLocation)
+# googleCall <- googleAPICaller(googleKey, charlesRoutes[[4]][[1]], charlesRoutes[[4]][[2]], charlesDickensLocation)
 
 # # Iterator call for all routes
-# allRoutesToSchool <- iterGoogleAPI(googleKey, charlesRoutes, charlesDickensLocation)
-# routePaths <- allRoutesToSchool[[1]]
-# routeMeasures <- allRoutesToSchool[[2]]
+ allRoutesToSchool <- iterGoogleAPI(googleKey, charlesRoutes, charlesDickensLocation)
+ routePaths <- allRoutesToSchool[[1]]
+ routeMeasures <- allRoutesToSchool[[2]]
 # 
 # # Graph with data points
-# schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14)
-# schoolMapWithPoints <- ggmap(schoolMap) + 
-#   geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
-#   geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
-#   geom_point(data = clustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
+ schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14)
+ schoolMapWithPoints <- ggmap(schoolMap) + 
+   geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
+   geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
+   geom_point(data = clustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
 # 
 # # Graph updated with paths
-# allPaths <- data.frame()
-# for(j in 1:length(routePaths)){
-#   allPaths <- rbind(allPaths, routePaths[[j]])
-# }
-# allPathsPlot <- schoolMapWithPoints + geom_path(data = allPaths, aes(x = lng, y = lat, size = 2, group = cluster, colour = as.factor(cluster)))
+ allPaths <- data.frame()
+ for(j in 1:length(routePaths)){
+   allPaths <- rbind(allPaths, routePaths[[j]])
+ }
+ allPathsPlot <- schoolMapWithPoints + geom_path(data = allPaths, aes(x = lng, y = lat, size = 2, group = cluster, colour = as.factor(cluster)))
 
 # Collection of route properties (length, distance) stored in routeMeasures
 # Convert these measures into walking times and distances of each student
 studentTravels <- function(allRouteMeasures){
   numRoutes <- length(allRouteMeasures)
   studentMeasure <- data.frame(Distance = numeric(), Duration = numeric())
+  leader <- vector()
+  k <- 1
   for(i in 1:numRoutes){
     route <- allRouteMeasures[[i]]
     numStudents <- dim(allRouteMeasures[[i]])[1]
     for(j in 1:numStudents){
+      if( j == 1){
+        leader[k] = TRUE
+      }
+      else{
+        leader[k] = FALSE
+      }
       studentDist <- sum(route[j:numStudents, 1])
       studentTime <- round(sum(route[j:numStudents, 2]) / 60, 2)
       student <- cbind(studentDist, studentTime)
       studentMeasure <- rbind(studentMeasure, student)
+      k <- k + 1
     }
   }
+  studentMeasure <- cbind(studentMeasure, leader)
   return(studentMeasure)
 }
 
@@ -271,14 +295,14 @@ hierClustering <- function(coordinates){
 fuzzyClusters <- function(coordinates){
   
   # Do the fuzzy matching and select the probability matrix from the output (column u)
-  fuzzyMatch <- fcm(coordinates[, 1:2], centers = coordinates[coordinates$leader == TRUE, 1:2]) # Centers are the route leaders
+  fuzzyMatch <- fcm(coordinates[coordinates$leader == FALSE, 1:2], centers = coordinates[coordinates$leader == TRUE, 1:2]) # Centers are the route leaders
   fuzzyMatch <- fuzzyMatch$u
   
-  # Choose cluster ID based on maximum probability
+  # Choose cluster ID based on maximum probability, not changing leader
   maxRows <- rowMaxs(fuzzyMatch)
   
   # Add the cluster id's to the data set
-  coordinates$clusters <- maxRows
+  coordinates$clusters[coordinates$leader == FALSE] <- maxRows
   return(coordinates)
 }
 
@@ -501,7 +525,7 @@ allRoutesToAllSchools <- list(list(NA), length(easySchoolsPolygons$properties$NA
 routePathsAll <- list(list(NA), length(easySchoolsPolygons$properties$NAME))
 routeMeasuresAll <- list(list(NA), length(easySchoolsPolygons$properties$NAME))
 scoringResults <- data.frame(knn = NA, kmeans = NA, hier = NA, fuzzy = NA)
-for( i in 1:4){#length(easySchoolsPolygons$properties$NAME)){
+for( i in 1:2){#length(easySchoolsPolygons$properties$NAME)){
   lead <- leaders(proportionalSampleHouses[[i]][[1]])
   
   clustered <- groups(lead)
@@ -527,7 +551,7 @@ for( i in 1:4){#length(easySchoolsPolygons$properties$NAME)){
   }
   
   routePathsAll[[i]] <- pathHolder
-  routeMeasuresAll[[j]] <- measureHolder
+  routeMeasuresAll[[i]] <- measureHolder
   # Probably do scoring function here and proceed with best score
   # Pseudo code for later
   #scoringResults$column <- clusteredTypeResults  
@@ -549,6 +573,22 @@ for( i in 1:4){#length(easySchoolsPolygons$properties$NAME)){
   #     geom_polygon(data = sampleRegionSimplified, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") +
   #     geom_point(data = clustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
 }
+
+# routeMeasuresAll[[SampleRegion]][[ClusteringMethod]][[GroupMetrics]] 
+routeMeasuresAll[[1]][[2]][[3]]
+
+# Need to find more convenient way to stack these dataset
+testRoutes <- routeMeasuresAll
+testRoutes <- studentTravels(testRoutes[[1]][[2]])
+testOutput <- lapply(testRoutes[[1]], studentTravels)
+crazyTest <- lapply(testRoutes, function(x) lapply(x, studentTravels))
+crazyRbind <- rbindlist(crazyTest[[1]]) # Keep working here, try to pipe it better to a data frame for everything and a column for which observation we are on
+#
+
+
+
+
+
 
 #   # Build routes and identify the location of the school
 #   schoolRoutes <- routeCreator(schoolClustered)
