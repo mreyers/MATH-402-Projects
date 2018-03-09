@@ -209,7 +209,9 @@ studentTravels <- function(allRouteMeasures){
   k <- 1
   for(i in 1:numRoutes){
     route <- allRouteMeasures[[i]]
+
     numStudents <- dim(allRouteMeasures[[i]])[1]
+
     for(j in 1:numStudents){
       if( j == 1){
         leader[k] = TRUE
@@ -525,7 +527,7 @@ allRoutesToAllSchools <- list(list(NA), length(easySchoolsPolygons$properties$NA
 routePathsAll <- list(list(NA), length(easySchoolsPolygons$properties$NAME))
 routeMeasuresAll <- list(list(NA), length(easySchoolsPolygons$properties$NAME))
 scoringResults <- data.frame(knn = NA, kmeans = NA, hier = NA, fuzzy = NA)
-for( i in 1:2){#length(easySchoolsPolygons$properties$NAME)){
+for( i in 1:length(easySchoolsPolygons$properties$NAME)){
   lead <- leaders(proportionalSampleHouses[[i]][[1]])
   
   clustered <- groups(lead)
@@ -575,15 +577,22 @@ for( i in 1:2){#length(easySchoolsPolygons$properties$NAME)){
 }
 
 # routeMeasuresAll[[SampleRegion]][[ClusteringMethod]][[GroupMetrics]] 
-routeMeasuresAll[[1]][[2]][[3]]
+# routeMeasuresAll[[1]][[2]][[3]]
 
 # Need to find more convenient way to stack these dataset
 testRoutes <- routeMeasuresAll
-testRoutes <- studentTravels(testRoutes[[1]][[2]])
 testOutput <- lapply(testRoutes[[1]], studentTravels)
 crazyTest <- lapply(testRoutes, function(x) lapply(x, studentTravels))
-crazyRbind <- rbindlist(crazyTest[[1]]) # Keep working here, try to pipe it better to a data frame for everything and a column for which observation we are on
-#
+crazyRbind <- lapply(crazyTest, rbindlist) # Keep working here, try to pipe it better to a data frame for everything and a column for which observation we are on
+saveDF <- data.frame()
+for(i in 1:length(crazyRbind)){
+  clusteringMethodVec <- rep(c("kNN", "kMeans", "Hier", "Fuzzy"), each = 30)
+  routeCovered <- rep(i, each = 120)
+  crazyRbind[[i]]$ClustAlg <- clusteringMethodVec
+  crazyRbind[[i]]$Catchment <- routeCovered
+  saveDF <- rbind(saveDF, crazyRbind[[i]])
+}
+
 
 
 
