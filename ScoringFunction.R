@@ -5,7 +5,6 @@
 
 #check which cluster has the lowest distance and time travel 
 clusterCheck <- function(c1){
-  
   timeAccept <- 35 #30min walk
   distAccept <- 1600 #1.6 km = 1 mile walk
   
