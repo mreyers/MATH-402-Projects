@@ -109,6 +109,7 @@ googleKey <- "AIzaSyCO6s6_vat14sb5HDNvayx7JN9h8XXrxzc"
 
 # Takes Lat, Long style coordinates
 googleAPICaller <- function(key, origin, waypoints, dest){
+  print(length(waypoints))
   if(length(waypoints) > 0){
     originToSchool <- paste0("https://maps.googleapis.com/maps/api/directions/json?units=metric&origin=", origin, "&destination=", dest,
                              "&waypoints=optimize:true|", waypoints, "&mode=walking&key=", key)
@@ -116,6 +117,7 @@ googleAPICaller <- function(key, origin, waypoints, dest){
   else{
     originToSchool <- paste0("https://maps.googleapis.com/maps/api/directions/json?units=metric&origin=", origin, "&destination=", dest,
                              "&mode=walking&key=", key)
+    print(originToSchool)
   }
   holder <- fromJSON(originToSchool)
   return(holder)
@@ -156,13 +158,17 @@ timeAndDistBySection <- function(oneGoogleCall){
 routeCreator <- function(clusterDF){
   leaders <- clusterDF %>% filter(leader == TRUE)
   nodes <- clusterDF %>% filter(leader != TRUE)
+  print(leaders)
+  print(nodes)
   textData <- nodes %>% mutate(combo = paste0(.$y, ",", .$x))
   routeList <- split(textData, textData$clusters)
   routes <- list()
   result <- list()
   for(i in 1:length(names(routeList))){
+    print(i)
     temp <- with(leaders[i,], paste0(y, ",", x))
     result[[i]] <- list(temp, with(routeList[[i]], paste0(combo)) %>% str_c(collapse = "|"))
+    print(result[[i]])
   }
   return(result)
 }
@@ -170,35 +176,58 @@ routeCreator <- function(clusterDF){
 
 ################ Test Google Call for Charles Dickens and simulated data ##############
 
- charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
- charlesSample <- polygons(30, charlesDickensTest)
- lead <- leaders(charlesSample)
- clustered <- groups(lead)
- # Trying the routes out with clustered data, then with the testclust from below
- charlesRoutes <- routeCreator(clustered)
- charlesDickensLocation <- "49.254957,-123.083038"
-
-# Test call for the 4th route: Key, origin, waypoints, destination
-# googleCall <- googleAPICaller(googleKey, charlesRoutes[[4]][[1]], charlesRoutes[[4]][[2]], charlesDickensLocation)
-
-# # Iterator call for all routes
- allRoutesToSchool <- iterGoogleAPI(googleKey, charlesRoutes, charlesDickensLocation)
- routePaths <- allRoutesToSchool[[1]]
- routeMeasures <- allRoutesToSchool[[2]]
+#  charlesDickensTest <- schoolCatch(schoolBoundaries, "Charles Dickens Elementary")
+#  charlesSample <- polygons(30, charlesDickensTest)
 # 
-# # Graph with data points
- schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14)
- schoolMapWithPoints <- ggmap(schoolMap) + 
-   geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
-   geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
-   geom_point(data = clustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
+#  # Trying some distance matrix stuff to see if we can make this happen
+#  
+#  distanceAPIKey <- "AIzaSyDpnZH86z5GgKAZ3o5l287ghqEoFtBH8QA" # New key
+#  charlesDickensLocation <- "49.254957,-123.083038"
+#  
+#  sampleWithSchool <- charlesSample
+#  lead <- leaders(sampleWithSchool)
+#  clustered <- groups(lead)
+#  sampleWithSchool[31, ] <- c(-123.083038, 49.254957)
+#  library(netgen) # Vehicle routing approach
+#  # Figure out how to generate the clusters according to the VRP
+#  # Use clusters with TSP or other optim approach
+#   # Might require building an arc from school to cluster nodes with 0 weight, keep reading
+#  
+#  # Going to do this part in Excel, will make the following changes
+#   # Depot to leader dist = 0
+#   # Leader to other leader dist = 1000 (or could modify the cost)
+#  leaderDistToChange <- which(clustered$leader == TRUE)
+#  fullDist <- dist(sampleWithSchool) %>% as.matrix() #%>% ETSP()
+#  # Specifically alter the distance from the leaders to the school to be 0
+#  fullDist[31, leaderDistToChange] <- 0
+#  # Apply the VRP to this altered distance matrix
+#  
+#  
+#  # Trying the routes out with clustered data, then with the testclust from below
+#  charlesRoutes <- routeCreator(clustered)
+#  charlesDickensLocation <- "49.254957,-123.083038"
 # 
-# # Graph updated with paths
- allPaths <- data.frame()
- for(j in 1:length(routePaths)){
-   allPaths <- rbind(allPaths, routePaths[[j]])
- }
- allPathsPlot <- schoolMapWithPoints + geom_path(data = allPaths, aes(x = lng, y = lat, size = 2, group = cluster, colour = as.factor(cluster)))
+# # Test call for the 4th route: Key, origin, waypoints, destination
+# # googleCall <- googleAPICaller(googleKey, charlesRoutes[[4]][[1]], charlesRoutes[[4]][[2]], charlesDickensLocation)
+# 
+# # # Iterator call for all routes
+#  allRoutesToSchool <- iterGoogleAPI(googleKey, charlesRoutes, charlesDickensLocation)
+#  routePaths <- allRoutesToSchool[[1]]
+#  routeMeasures <- allRoutesToSchool[[2]]
+# # 
+# # # Graph with data points
+#  schoolMap <- get_map(location = c(lon = -123.083038 ,lat = 49.254957), zoom = 14)
+#  schoolMapWithPoints <- ggmap(schoolMap) + 
+#    geom_point(aes(x = -123.083038, y = 49.254957, size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") + 
+#    geom_polygon(data = charlesDickensTest, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") + 
+#    geom_point(data = clustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
+# # 
+# # # Graph updated with paths
+#  allPaths <- data.frame()
+#  for(j in 1:length(routePaths)){
+#    allPaths <- rbind(allPaths, routePaths[[j]])
+#  }
+#  allPathsPlot <- schoolMapWithPoints + geom_path(data = allPaths, aes(x = lng, y = lat, size = 2, group = cluster, colour = as.factor(cluster)))
 
 # Collection of route properties (length, distance) stored in routeMeasures
 # Convert these measures into walking times and distances of each student
@@ -206,6 +235,7 @@ studentTravels <- function(allRouteMeasures){
   numRoutes <- length(allRouteMeasures)
   studentMeasure <- data.frame(Distance = numeric(), Duration = numeric())
   leader <- vector()
+  clusters <- vector()
   k <- 1
   for(i in 1:numRoutes){
     route <- allRouteMeasures[[i]]
@@ -219,6 +249,7 @@ studentTravels <- function(allRouteMeasures){
       else{
         leader[k] = FALSE
       }
+      clusters[k] <- i
       studentDist <- sum(route[j:numStudents, 1])
       studentTime <- round(sum(route[j:numStudents, 2]) / 60, 2)
       student <- cbind(studentDist, studentTime)
@@ -226,7 +257,7 @@ studentTravels <- function(allRouteMeasures){
       k <- k + 1
     }
   }
-  studentMeasure <- cbind(studentMeasure, leader)
+  studentMeasure <- cbind(studentMeasure, leader, clusters)
   return(studentMeasure)
 }
 
@@ -527,33 +558,40 @@ allRoutesToAllSchools <- list(list(NA), length(easySchoolsPolygons$properties$NA
 routePathsAll <- list(list(NA), length(easySchoolsPolygons$properties$NAME))
 routeMeasuresAll <- list(list(NA), length(easySchoolsPolygons$properties$NAME))
 scoringResults <- data.frame(knn = NA, kmeans = NA, hier = NA, fuzzy = NA)
+allTheClusters <- list()
 for( i in 1:length(easySchoolsPolygons$properties$NAME)){
   lead <- leaders(proportionalSampleHouses[[i]][[1]])
   
   clustered <- groups(lead)
-  kmeansClust <- recluster(clustered)
-  hierClust <- hierClustering(clustered)
-  fuzzyClust <- fuzzyClusters(clustered)
-  
-  routes <- list()
-  routes[[1]] <- routeCreator(clustered)
-  routes[[2]] <- routeCreator(kmeansClust)
-  routes[[3]] <- routeCreator(hierClust)
-  routes[[4]] <- routeCreator(fuzzyClust)
-  
-  schoolLocation <- easySchoolsPolygons$stringCoords[i]
-  allClustersToASchool <- list()
-  pathHolder <- list(NA, 4)
-  measureHolder <- list(NA, 4)
-  for(j in 1:4){
-    print(paste0(i, " ", j))
-    allClustersToASchool <- iterGoogleAPI(googleKey, routes[[j]], schoolLocation)
-    pathHolder[[j]] <- allClustersToASchool[[1]]
-    measureHolder[[j]] <- allClustersToASchool[[2]]
-  }
-  
-  routePathsAll[[i]] <- pathHolder
-  routeMeasuresAll[[i]] <- measureHolder
+  allTheClusters[[i]] <- clustered
+  # kmeansClust <- recluster(clustered)
+  # hierClust <- hierClustering(clustered)
+  # fuzzyClust <- fuzzyClusters(clustered)
+  # 
+  # routes <- list()
+  # routes[[1]] <- routeCreator(clustered)
+  # routes[[2]] <- routeCreator(kmeansClust)
+  # routes[[3]] <- routeCreator(hierClust)
+  # routes[[4]] <- routeCreator(fuzzyClust)
+  # 
+  # schoolLocation <- easySchoolsPolygons$stringCoords[i]
+  # allClustersToASchool <- list()
+  # pathHolder <- list(NA, 4)
+  # measureHolder <- list(NA, 4)
+  # for(j in 1:4){
+  #   print(paste0(i, " ", j))
+  #   allClustersToASchool <- iterGoogleAPI(googleKey, routes[[j]], schoolLocation)
+  #   pathHolder[[j]] <- allClustersToASchool[[1]]
+  #   measureHolder[[j]] <- allClustersToASchool[[2]]
+  # }
+  # 
+  # routePathsAll[[i]] <- pathHolder
+  # routeMeasuresAll[[i]] <- measureHolder
+}
+
+
+
+
   # Probably do scoring function here and proceed with best score
   # Pseudo code for later
   #scoringResults$column <- clusteredTypeResults  
@@ -574,7 +612,7 @@ for( i in 1:length(easySchoolsPolygons$properties$NAME)){
   #     geom_point(aes(x = easySchoolsPolygons$properties$long[i], y = easySchoolsPolygons$properties$lat[i], size = 3, col = "red", alpha = 0.3)) + theme(legend.position = "none") +
   #     geom_polygon(data = sampleRegionSimplified, aes(x = Longitude, y = Latitude), alpha = 0.3, colour = "red", fill = "red") +
   #     geom_point(data = clustered, aes(x = x, y = y, col = as.factor(clusters), shape = leader))
-}
+
 
 # routeMeasuresAll[[SampleRegion]][[ClusteringMethod]][[GroupMetrics]] 
 # routeMeasuresAll[[1]][[2]][[3]]
@@ -592,6 +630,178 @@ for(i in 1:length(crazyRbind)){
   crazyRbind[[i]]$Catchment <- routeCovered
   saveDF <- rbind(saveDF, crazyRbind[[i]])
 }
+
+
+
+# Read in the data from the VRP on the 10 regions to verify
+region55 <- read.csv("region55Data.csv")
+region35 <- read.csv("region35Data.csv")
+region9  <- read.csv("region9Data.csv")
+region29 <- read.csv("region29Data.csv")
+region57 <- read.csv("region57Data.csv")
+region34 <- read.csv("school34.csv")
+region8  <- read.csv("school8.csv")
+region44 <- read.csv("school44.csv")
+region45 <- read.csv("school45.csv")
+region22 <- read.csv("school22.csv")
+
+
+region55$X <- as.character(region55$X)
+clusterList <- list()
+for(i in 6:dim(region55)[2]){
+  # V1 is in spot 5 so cluster 1 is i - 4
+  nodes <- levels(region55[, i]) %>% str_replace("Customer ", "")
+  nodes <- nodes[2:length(nodes)]
+  clusterList[[i - 5]] <- nodes
+  region55$clusters[region55$X %in% clusterList[[i-5]]] <- i-5
+  
+}
+region55 <- region55[, 2:5]
+
+region35$X <- as.character(region35$X)
+clusterList <- list()
+for(i in 6:dim(region35)[2]){
+  # V1 is in spot 5 so cluster 1 is i - 4
+  nodes <- levels(region35[, i]) %>% str_replace("Customer ", "")
+  nodes <- nodes[2:length(nodes)]
+  clusterList[[i - 5]] <- nodes
+  region35$clusters[region35$X %in% clusterList[[i-5]]] <- i-5
+  
+}
+region35 <- region35[, 2:5]
+
+region9$X <- as.character(region9$X)
+clusterList <- list()
+for(i in 6:dim(region9)[2]){
+  # V1 is in spot 5 so cluster 1 is i - 4
+  nodes <- levels(region9[, i]) %>% str_replace("Customer ", "")
+  nodes <- nodes[2:length(nodes)]
+  clusterList[[i - 5]] <- nodes
+  region9$clusters[region9$X %in% clusterList[[i-5]]] <- i-5
+  
+}
+region9 <- region9[, 2:5]
+
+region29$X <- as.character(region29$X)
+clusterList <- list()
+for(i in 6:dim(region29)[2]){
+  # V1 is in spot 5 so cluster 1 is i - 4
+  nodes <- levels(region29[, i]) %>% str_replace("Customer ", "")
+  nodes <- nodes[2:length(nodes)]
+  clusterList[[i - 5]] <- nodes
+  region29$clusters[region29$X %in% clusterList[[i-5]]] <- i-5
+  
+}
+region29 <- region29[, 2:5]
+
+region57$X <- as.character(region57$X)
+clusterList <- list()
+for(i in 6:dim(region57)[2]){
+  # V1 is in spot 5 so cluster 1 is i - 4
+  nodes <- levels(region57[, i]) %>% str_replace("Customer ", "")
+  nodes <- nodes[2:length(nodes)]
+  clusterList[[i - 5]] <- nodes
+  region57$clusters[region57$X %in% clusterList[[i-5]]] <- i-5
+  
+}
+region57 <- region57[, 2:5]
+
+# CHECK THIS REGION AGAIN
+region34$X <- as.character(region34$X)
+clusterList <- list()
+clusterDF <- data.frame(ID = as.character(1:30), clusters = rep(NA, 30))
+for(i in 5:dim(region34)[2]){
+  nodes <- levels(region34[, i]) %>% str_replace("Customer ", "")
+  nodes <- nodes[2:(length(nodes) - 1)]
+  clusterList[[i-4]] <- nodes
+  clusterDF$clusters[clusterDF$ID %in% clusterList[[i-4]]] <- i-4
+}
+region34$clusters <- clusterDF$clusters
+region34 <- region34 %>% dplyr::select(x, y, leader, clusters)
+
+region8$X <- as.character(region8$X)
+clusterList <- list()
+clusterDF <- data.frame(ID = as.character(1:30), clusters = rep(NA, 30))
+for(i in 5:dim(region8)[2]){
+  nodes <- levels(region8[, i]) %>% str_replace("Customer ", "")
+  nodes <- nodes[2:(length(nodes) - 1)]
+  clusterList[[i-4]] <- nodes
+  clusterDF$clusters[clusterDF$ID %in% clusterList[[i-4]]] <- i-4
+}
+region8$clusters <- clusterDF$clusters
+region8 <- region8 %>% dplyr::select(x, y, leader, clusters)
+
+
+region44$X <- as.character(region44$X)
+clusterList <- list()
+clusterDF <- data.frame(ID = as.character(1:30), clusters = rep(NA, 30))
+for(i in 5:dim(region44)[2]){
+  nodes <- levels(region44[, i]) %>% str_replace("Customer ", "")
+  nodes <- nodes[2:(length(nodes) - 1)]
+  clusterList[[i-4]] <- nodes
+  clusterDF$clusters[clusterDF$ID %in% clusterList[[i-4]]] <- i-4
+}
+region44$clusters <- clusterDF$clusters
+region44 <- region44 %>% dplyr::select(x, y, leader, clusters)
+
+
+region45$X <- as.character(region45$X)
+clusterList <- list()
+clusterDF <- data.frame(ID = as.character(1:30), clusters = rep(NA, 30))
+for(i in 5:dim(region45)[2]){
+  nodes <- levels(region45[, i]) %>% str_replace("Customer ", "")
+  nodes <- nodes[2:(length(nodes) - 1)]
+  clusterList[[i-4]] <- nodes
+  clusterDF$clusters[clusterDF$ID %in% clusterList[[i-4]]] <- i-4
+}
+region45$clusters <- clusterDF$clusters
+region45 <- region45 %>% dplyr::select(x, y, leader, clusters)
+
+
+region22$X <- as.character(region22$X)
+clusterList <- list()
+clusterDF <- data.frame(ID = as.character(1:30), clusters = rep(NA, 30))
+for(i in 5:dim(region22)[2]){
+  nodes <- levels(region22[, i]) %>% str_replace("Customer ", "")
+  nodes <- nodes[2:(length(nodes) - 1)]
+  clusterList[[i-4]] <- nodes
+  clusterDF$clusters[clusterDF$ID %in% clusterList[[i-4]]] <- i-4
+}
+region22$clusters <- clusterDF$clusters
+region22 <- region22 %>% dplyr::select(x, y, leader, clusters)
+
+
+# All of the sampled regions now have their data in the clustered format meaning we can evaluate them as above
+
+allVRPResults <- list(region8, region9, region22, region29, region34, region35, region44, region45, region55, region57)
+schoolNames <- easySchoolsPolygons$properties$NAME[c(8, 9, 22, 29, 34, 35, 44, 45, 55, 57)]
+routesVRP <- list()
+measuresVRP <- list()
+for(i in 1:10){
+  routes <- routeCreator(allVRPResults[[i]])
+  schoolLocation <- easySchoolsPolygons$stringCoords[easySchoolsPolygons$properties$NAME %in% schoolNames[i]]
+  allClustersToASchool <- iterGoogleAPI(googleKey, routes, schoolLocation)
+  routesVRP[[i]] <- allClustersToASchool[[1]]
+  measuresVRP[[i]] <- allClustersToASchool[[2]]
+}
+
+# TO DO: Convert this into desired format (crazyRbind) and pass data to Neggyn
+# Verify the results
+
+
+VRPTest <- measuresVRP
+VRPTestOutput <- lapply(VRPTest, studentTravels)
+crazyTest <- lapply(testRoutes, function(x) lapply(x, studentTravels))
+crazyRbind <- lapply(crazyTest, rbindlist) # Keep working here, try to pipe it better to a data frame for everything and a column for which observation we are on
+saveDF <- data.frame()
+for(i in 1:length(crazyRbind)){
+  clusteringMethodVec <- rep(c("kNN", "kMeans", "Hier", "Fuzzy"), each = 30)
+  routeCovered <- rep(i, each = 120)
+  crazyRbind[[i]]$ClustAlg <- clusteringMethodVec
+  crazyRbind[[i]]$Catchment <- routeCovered
+  saveDF <- rbind(saveDF, crazyRbind[[i]])
+}
+
 
 
 
