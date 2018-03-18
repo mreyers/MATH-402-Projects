@@ -109,7 +109,7 @@ googleKey <- "AIzaSyCO6s6_vat14sb5HDNvayx7JN9h8XXrxzc"
 
 # Takes Lat, Long style coordinates
 googleAPICaller <- function(key, origin, waypoints, dest){
-  print(length(waypoints))
+  #print(length(waypoints))
   if(length(waypoints) > 0){
     originToSchool <- paste0("https://maps.googleapis.com/maps/api/directions/json?units=metric&origin=", origin, "&destination=", dest,
                              "&waypoints=optimize:true|", waypoints, "&mode=walking&key=", key)
@@ -156,22 +156,41 @@ timeAndDistBySection <- function(oneGoogleCall){
 
 # Function that takes the starting data frame and creates route string for API call. Should have the leader as starting node
 routeCreator <- function(clusterDF){
+  clusterDF <- clusterDF %>% arrange(clusters)
   leaders <- clusterDF %>% filter(leader == TRUE)
   nodes <- clusterDF %>% filter(leader != TRUE)
-  print(leaders)
-  print(nodes)
+  #print(leaders)
+  #print(nodes)
+  #textData <- nodes %>% mutate(combo = paste0(.$y, ",", .$x))
   textData <- nodes %>% mutate(combo = paste0(.$y, ",", .$x))
-  routeList <- split(textData, textData$clusters)
+  #routeList <- split(textData, c(textData$clusters, textData$leader))
+  routeList <- list()
+  for( i in 1:dim(leaders)[1]){#for each leader
+    routeList[[i]] <- textData[textData$clusters == i,]
+   # print(dim(routeList[[i]])[1])
+    routeList[[i]]
+  }
+  
   routes <- list()
   result <- list()
-  for(i in 1:length(names(routeList))){
-    print(i)
+  #print(length(routeList))
+  for(i in 1:length(routeList)){
+   # print(i)
     temp <- with(leaders[i,], paste0(y, ",", x))
-    result[[i]] <- list(temp, with(routeList[[i]], paste0(combo)) %>% str_c(collapse = "|"))
-    print(result[[i]])
+    if(dim(routeList[[i]])[1] > 0){
+      #print("if")
+      #print(list(temp, with(routeList[[i]], paste0(combo)) %>% str_c(collapse = "|")))
+      result[[i]] <- list(temp, with(routeList[[i]], paste0(combo)) %>% str_c(collapse = "|"))
+    }
+    else{
+      #print("else")
+      result[[i]] <- list(temp, "")
+    }
+    #print(result[[i]])
   }
   return(result)
 }
+#routeCreator(allVRPResults[[1]])
 
 
 ################ Test Google Call for Charles Dickens and simulated data ##############
@@ -540,7 +559,6 @@ proportionalSampleRegion <- list()
 proportionalSampleHouses <- list()
 
 for( i in 1:length(together)){
-  print(i)
   overlap <- overlapSampler(i)
   proportionalSampleRegion[[i]] <- overlap[1]
   proportionalSampleHouses[[i]] <- overlap[2]
@@ -588,6 +606,7 @@ for( i in 1:length(easySchoolsPolygons$properties$NAME)){
   # routePathsAll[[i]] <- pathHolder
   # routeMeasuresAll[[i]] <- measureHolder
 }
+
 
 
 
@@ -788,20 +807,16 @@ for(i in 1:10){
 # TO DO: Convert this into desired format (crazyRbind) and pass data to Neggyn
 # Verify the results
 
-
 VRPTest <- measuresVRP
 VRPTestOutput <- lapply(VRPTest, studentTravels)
-crazyTest <- lapply(testRoutes, function(x) lapply(x, studentTravels))
-crazyRbind <- lapply(crazyTest, rbindlist) # Keep working here, try to pipe it better to a data frame for everything and a column for which observation we are on
-saveDF <- data.frame()
-for(i in 1:length(crazyRbind)){
-  clusteringMethodVec <- rep(c("kNN", "kMeans", "Hier", "Fuzzy"), each = 30)
-  routeCovered <- rep(i, each = 120)
-  crazyRbind[[i]]$ClustAlg <- clusteringMethodVec
-  crazyRbind[[i]]$Catchment <- routeCovered
-  saveDF <- rbind(saveDF, crazyRbind[[i]])
-}
 
+crazyRbind <- rbindlist(VRPTestOutput) # Keep working here, try to pipe it better to a data frame for everything and a column for which observation we are on
+schoolNameIndex <- c()
+for( i in 1:300){
+  schoolNameIndex[i] <- ceiling(i/30)
+}
+saveDF <- crazyRbind %>% cbind(schoolNameIndex)
+write.csv(saveDF, "VRPScores.csv")
 
 
 
