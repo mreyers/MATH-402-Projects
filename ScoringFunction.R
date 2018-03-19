@@ -9,9 +9,9 @@ clusterCheck <- function(c1){
   distAccept <- 1600 #1.6 km = 1 mile walk
   
   #checking if travel distance is more than 1600, then check if they walk more than 35min
-  if ((sum(c1$studentDist > distAccept)==0) && (sum(c1$studentTime > timeAccept)==0)){
-    return(TRUE)
-  }else{return(FALSE)}
+  if ((sum(c1$studentDist > distAccept)!=0) && (sum(c1$studentTime > timeAccept)!=0)){
+    return(FALSE)
+  }else{return(TRUE)}
 }
 
 #Function find number of students with each leader
@@ -33,8 +33,8 @@ checkLeadersCapacity <- function(capacity, nstudent){
   pts <- c()
   for(i in 1: length(nstudent)){
     if (nstudent[i] > capacity) {
-      pts[i] <- level[2]
-    }else(pts[i] <- level[1])
+      pts[i] <- 1
+    }else(pts[i] <- 0)
   }
   
   return (pts)
@@ -68,60 +68,141 @@ clusterMethodsDT <- function(CmethodsList){
   return(pass)
 }  
 
+#find distance and time voilation
+howMuch <- function(c1){
+  timeAccept <- 35 #30min walk
+  distAccept <- 1610 #1.61 km = 1 mile walk
+
+  #returning nodes that distance and time are voilated
+  #only checking distance, bc if they exceed 1.6km they also aexceed 35min
+  distVoil <- c()
+  timeVoil <- c()
+
+  for(i in 1: nrow(c1)){
+    if(c1$studentDist[i] > distAccept & c1$studentTime[i] > timeAccept){
+      distVoil[i] <- c1$studentDist[i] - distAccept
+      timeVoil[i] <- c1$studentTime[i] - timeAccept
+    }
+    else {
+      distVoil[i] <- 0
+      timeVoil[i] <- 0
+    }
+  }
+
+
+  return(cbind(distVoil, timeVoil)%>%as.data.frame())
+}
+
+#scoring
+doScoring <- function(list, clusterMethods){
+  pass <- clusterMethodsDT(list)
+  numDistVoil <- c()
+  maxDistVoil <- c()
+  passCap <- c()
+  leaderPoint <- c()
+  for(j in 1:length(list)){
+    n <- nStudent_Leader(list[[j]])
+    leaderCap <- checkLeadersCapacity(5, n)  #capacity : 6 students acc. to WSB website
+    passCap[j] <- sum(leaderCap) == 0 
+    leaderPoint[j] <- leaderHandling(n, leaderCap) 
+    numDistVoil[j] <- maxANDnum(howMuch(list[[j]]))[1]
+    maxDistVoil[j] <- maxANDnum(howMuch(list[[j]]))[2]
+  }
+  result <-  cbind(clusterMethods,  "passT&D" = pass , passCap ,leaderPoint,numDistVoil, maxDistVoil) %>% as.data.frame(as.factor = T)
+  return(result)
+}
+
+
+#find how many times distance exceeds 1.6K and what is the maximum violation
+#in each clustering method
+maxANDnum <- function(df){
+  count <- 0
+  for ( j in 1:nrow(df)){
+    if(df$distVoil[j] != 0)
+      count <- count+1
+  }
+  max <- max(df$distVoil)
+  return(c(count, max))
+}
+
+#adding cluster number to routes(for routes data frame)
+addClusterNum <- function(df){
+  clusters <- c()
+  count <- 1
+  j <- 0
+  for(m in 1:nrow(df)){
+    if(count > nrow(df) ){
+      j <- 0
+      count <- 1}
+    if(df$leader[m]){j <- j+1}
+    clusters[m] <- j
+    count <- count+1
+  }
+  return(clusters)
+}
 
 ####################################################################################################
 #                                        SCORING                                                 #
 ####################################################################################################
 
+
+####################################################################################################
+#                           R SIMULATION 4 CLUSTERING                                                #
+####################################################################################################
 schools <- 58
 clusterMethods <- c("kNN", "kMeans", "Hier", "Fuzzy") 
 routes <- read.csv("allRoutesForScoring.csv", header = T,stringsAsFactors = F)
 str(routes)
 View(routes)
 
-#add cluster column to data frame
-clusters <- c()
-count <- 1
-j <- 0
-routes[31,]
-for(m in 1:nrow(routes)){
-  if(count > 30 ){j <- 0
-  count <- 1}
-  if(routes$leader[m]){j <- j+1}
-  clusters[m] <- j
-  count <- count+1
-}
-View(clusters)
 
-routes <- (cbind(routes, clusters))
+#add cluster column to data frame
+routes <- (cbind(routes, "clusters" = addClusterNum(routes)))
 
 
 #scoring: 
-cl <- list()
+
 result <- list()
 for(i in 1:max(routes$Catchment)){
+  cl <- list()
   test <- routes[routes$Catchment == i,]
   print(paste0("test",i))
   cl[[1]] <- test[test$ClustAlg == "kNN",]
   cl[[2]] <- test[test$ClustAlg == "kMeans",]
   cl[[3]] <- test[test$ClustAlg == "Hier",]
   cl[[4]] <- test[test$ClustAlg == "Fuzzy",]
-  pass <- clusterMethodsDT(cl)
-  passCap <- c()
-  leaderPoint <- c()
-  for(j in 1:4){
-    n <- nStudent_Leader(cl[[j]])
-    leaderCap <- checkLeadersCapacity(5, n)
-    passCap[j] <- sum(leaderCap) == 0 
-    leaderPoint[j] <- leaderHandling(n, leaderCap)  
-  }
-  result[[i]] <-  cbind(clusterMethods,  "passT&D"= pass, passCap ,leaderPoint) %>% as.data.frame(as.factor = T)
+  
+  result[[i]] <-  doScoring(cl,clusterMethods)
+}
+
+####################################################################################################
+#                                 VRP                                                       #
+####################################################################################################
+vrp<- read.csv("VRPScores.csv", header = T,stringsAsFactors = F)
+View(vrp)
+
+#scoring step:
+clVRP <- list()
+resultVRP <- list()
+for(i in 1:max(vrp$schoolNameIndex)){
+  clVRP[[1]] <- vrp[vrp$schoolNameIndex == i,]
+  resultVRP[[i]] <-  doScoring(clVRP, clusterMethods = c("VRP"))
 }
 
 
+#combining 4 clusters and VRP
+regions <- c(9, 29, 35, 55, 57, 8, 22, 34, 44, 45)
 
+combined <- list()
+for(r in 1:length(regions)){
+  combined[[r]] <- rbind(result[[regions[r]]], resultVRP[[r]])
+}
 
-
+binding <- data.frame()
+for(i in 1:10){
+  binding <- rbind(binding, cbind(combined[[i]], schoolNameIndex = i))
+}
+write.csv(binding, "ClusterScores.csv")
 
 
 #######checking each constraint seperately.#######
