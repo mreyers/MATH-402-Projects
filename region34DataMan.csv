@@ -1,0 +1,34 @@
+,x,y,region,leader,clusters,V1,V2,V3,V4,V5,V6,V7
+1,-123.1848664,49.255121,Lord Kitchener Elementary,TRUE,1,Customer 4,Customer 1,Customer 13,Customer 25,Customer 27,Customer 5,Customer 20
+2,-123.1846906,49.25422305,Lord Kitchener Elementary,FALSE,1,,Customer 2,Customer 14,Customer 26,Customer 30,,Customer 21
+3,-123.1819212,49.25220547,Lord Kitchener Elementary,FALSE,2,,Customer 6,Customer 16,Customer 28,Customer 24,,Customer 19
+4,-123.1799065,49.25149298,Lord Kitchener Elementary,TRUE,2,,Customer 7,Customer 15,,Customer 22,,Customer 18
+5,-123.1796653,49.25193398,Lord Kitchener Elementary,TRUE,3,,Customer 3,Customer 12,,Customer 23,,Customer 17
+6,-123.1797584,49.2553074,Lord Kitchener Elementary,FALSE,3,,,,,Customer 29,,Customer 8
+7,-123.181799,49.25369404,Lord Kitchener Elementary,FALSE,3,,,,,Customer 10,,
+8,-123.1832995,49.25041538,Lord Kitchener Elementary,FALSE,2,,,,,Customer 11,,
+9,-123.1799885,49.24839249,Lord Kitchener Elementary,FALSE,2,,,,,Customer 9,,
+10,-123.1790196,49.24708379,Lord Kitchener Elementary,FALSE,2,,,,,,,
+11,-123.1792103,49.24820701,Lord Kitchener Elementary,FALSE,2,,,,,,,
+12,-123.181896,49.24444263,Lord Kitchener Elementary,FALSE,4,,,,,,,
+13,-123.1825824,49.24328111,Lord Kitchener Elementary,TRUE,4,,,,,,,
+14,-123.1821734,49.24245686,Lord Kitchener Elementary,FALSE,4,,,,,,,
+15,-123.1827885,49.2445021,Lord Kitchener Elementary,FALSE,4,,,,,,,
+16,-123.1822941,49.24368294,Lord Kitchener Elementary,FALSE,4,,,,,,,
+17,-123.1857922,49.24555047,Lord Kitchener Elementary,FALSE,4,,,,,,,
+18,-123.1863489,49.24571123,Lord Kitchener Elementary,FALSE,4,,,,,,,
+19,-123.1872012,49.24549755,Lord Kitchener Elementary,FALSE,5,,,,,,,
+20,-123.1903418,49.24789994,Lord Kitchener Elementary,TRUE,5,,,,,,,
+21,-123.1904939,49.24811528,Lord Kitchener Elementary,FALSE,5,,,,,,,
+22,-123.1705695,49.24267179,Lord Kitchener Elementary,FALSE,6,,,,,,,
+23,-123.1753962,49.24614885,Lord Kitchener Elementary,FALSE,6,,,,,,,
+24,-123.1715813,49.24931056,Lord Kitchener Elementary,FALSE,6,,,,,,,
+25,-123.176659,49.25119158,Lord Kitchener Elementary,TRUE,6,,,,,,,
+26,-123.1784845,49.2511189,Lord Kitchener Elementary,FALSE,3,,,,,,,
+27,-123.1764411,49.25231888,Lord Kitchener Elementary,TRUE,7,,,,,,,
+28,-123.1782935,49.25070305,Lord Kitchener Elementary,FALSE,6,,,,,,,
+29,-123.1762572,49.24767603,Lord Kitchener Elementary,FALSE,6,,,,,,,
+30,-123.1767327,49.24903365,Lord Kitchener Elementary,FALSE,6,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,49.25055,-123.181,,,,,,,,,,

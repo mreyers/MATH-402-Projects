@@ -1,0 +1,33 @@
+,x,y,region,leader,clusters,V1,V2,V3,V4,V5,V6,V7
+1,-123.1516567,49.24207926,Shaughnessy Elementary,TRUE,1,Customer 26,Customer 19,Customer 27,Customer 5,Customer 1,Customer 24,Customer 13
+2,-123.1514852,49.24251289,Shaughnessy Elementary,FALSE,1,Customer 28,Customer 18,Customer 20,Customer 7,Customer 2,,Customer 12
+3,-123.1506401,49.24719847,Shaughnessy Elementary,FALSE,2,Customer 29,Customer 15,,Customer 3,Customer 6,,Customer 22
+4,-123.1488259,49.24441658,Shaughnessy Elementary,FALSE,1,Customer 30,Customer 14,,,Customer 4,,Customer 23
+5,-123.1527715,49.24505079,Shaughnessy Elementary,TRUE,2,Customer 11,Customer 16,,,Customer 21,,
+6,-123.1495207,49.2438379,Shaughnessy Elementary,FALSE,1,Customer 10,,,,Customer 17,,
+7,-123.1523648,49.24574534,Shaughnessy Elementary,FALSE,2,Customer 9,,,,,,
+8,-123.1524213,49.24967424,Shaughnessy Elementary,FALSE,2,Customer 25,,,,,,
+9,-123.1528997,49.25728278,Shaughnessy Elementary,FALSE,6,Customer 8,,,,,,
+10,-123.1528969,49.25728395,Shaughnessy Elementary,FALSE,6,,,,,,,
+11,-123.1529096,49.25736009,Shaughnessy Elementary,FALSE,6,,,,,,,
+12,-123.1406385,49.25816458,Shaughnessy Elementary,FALSE,3,,,,,,,
+13,-123.1408657,49.2596422,Shaughnessy Elementary,TRUE,3,,,,,,,
+14,-123.1344204,49.25065178,Shaughnessy Elementary,FALSE,3,,,,,,,
+15,-123.1325888,49.24168279,Shaughnessy Elementary,FALSE,4,,,,,,,
+16,-123.1393416,49.25012202,Shaughnessy Elementary,FALSE,5,,,,,,,
+17,-123.1438344,49.24671615,Shaughnessy Elementary,FALSE,4,,,,,,,
+18,-123.1418648,49.24215289,Shaughnessy Elementary,FALSE,4,,,,,,,
+19,-123.1447843,49.24336594,Shaughnessy Elementary,TRUE,4,,,,,,,
+20,-123.1475283,49.25086505,Shaughnessy Elementary,FALSE,5,,,,,,,
+21,-123.1478577,49.24511385,Shaughnessy Elementary,FALSE,4,,,,,,,
+22,-123.1434649,49.25528643,Shaughnessy Elementary,FALSE,5,,,,,,,
+23,-123.1432167,49.25197703,Shaughnessy Elementary,FALSE,5,,,,,,,
+24,-123.1453716,49.25367437,Shaughnessy Elementary,TRUE,5,,,,,,,
+25,-123.1523541,49.25414087,Shaughnessy Elementary,FALSE,7,,,,,,,
+26,-123.1486943,49.25966618,Shaughnessy Elementary,TRUE,6,,,,,,,
+27,-123.1480745,49.25877659,Shaughnessy Elementary,TRUE,7,,,,,,,
+28,-123.1482755,49.25962838,Shaughnessy Elementary,FALSE,6,,,,,,,
+29,-123.149758,49.26046225,Shaughnessy Elementary,FALSE,6,,,,,,,
+30,-123.1507872,49.26087436,Shaughnessy Elementary,FALSE,6,,,,,,,
+,,,,,,,,,,,,
+,49.24844,-123.1437,,,,,,,,,,

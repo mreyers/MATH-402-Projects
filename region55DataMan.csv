@@ -1,0 +1,34 @@
+,x,y,region,leader,clusters,V1,V2,V3,V4,V5,V6,V7
+1,-123.1399037,49.22355267,Sir William Osler Elementary,FALSE,1,Customer 22,Customer 29,Customer 2,Customer 18,Customer 26,Customer 25,Customer 11
+2,-123.1398893,49.22365031,Sir William Osler Elementary,TRUE,1,,Customer 28,Customer 1,,Customer 24,,Customer 12
+3,-123.139947,49.22251237,Sir William Osler Elementary,FALSE,1,,Customer 27,Customer 3,,,,Customer 23
+4,-123.1363078,49.22036429,Sir William Osler Elementary,FALSE,1,,Customer 9,Customer 4,,,,Customer 17
+5,-123.137148,49.21989664,Sir William Osler Elementary,FALSE,1,,Customer 10,Customer 5,,,,Customer 13
+6,-123.1374677,49.2259924,Sir William Osler Elementary,FALSE,1,,Customer 20,Customer 6,,,,Customer 14
+7,-123.1300027,49.21991049,Sir William Osler Elementary,FALSE,3,,Customer 19,Customer 21,,,,Customer 30
+8,-123.1302833,49.22445424,Sir William Osler Elementary,FALSE,3,,,Customer 15,,,,Customer 7
+9,-123.1279407,49.24007618,Sir William Osler Elementary,FALSE,7,,,,,,,Customer 8
+10,-123.127933,49.2370153,Sir William Osler Elementary,FALSE,2,,,,,,,Customer 16
+11,-123.1278932,49.2382871,Sir William Osler Elementary,TRUE,2,,,,,,,
+12,-123.127978,49.23808206,Sir William Osler Elementary,FALSE,2,,,,,,,
+13,-123.1281899,49.22983833,Sir William Osler Elementary,FALSE,3,,,,,,,
+14,-123.1282855,49.22742981,Sir William Osler Elementary,FALSE,3,,,,,,,
+15,-123.1336239,49.22763577,Sir William Osler Elementary,FALSE,3,,,,,,,
+16,-123.1311842,49.22936064,Sir William Osler Elementary,FALSE,3,,,,,,,
+17,-123.1283925,49.2302634,Sir William Osler Elementary,FALSE,3,,,,,,,
+18,-123.1292777,49.23041461,Sir William Osler Elementary,TRUE,3,,,,,,,
+19,-123.1290316,49.23145609,Sir William Osler Elementary,FALSE,3,,,,,,,
+20,-123.1285536,49.23354824,Sir William Osler Elementary,FALSE,3,,,,,,,
+21,-123.1354629,49.2284073,Sir William Osler Elementary,FALSE,1,,,,,,,
+22,-123.1329237,49.23444267,Sir William Osler Elementary,TRUE,4,,,,,,,
+23,-123.128176,49.23562586,Sir William Osler Elementary,FALSE,2,,,,,,,
+24,-123.1317521,49.24162709,Sir William Osler Elementary,FALSE,6,,,,,,,
+25,-123.1292509,49.24152346,Sir William Osler Elementary,TRUE,5,,,,,,,
+26,-123.1295186,49.24153528,Sir William Osler Elementary,TRUE,6,,,,,,,
+27,-123.1278171,49.24145127,Sir William Osler Elementary,FALSE,7,,,,,,,
+28,-123.1278032,49.2414928,Sir William Osler Elementary,FALSE,7,,,,,,,
+29,-123.1277951,49.24148547,Sir William Osler Elementary,TRUE,7,,,,,,,
+30,-123.1284668,49.22143937,Sir William Osler Elementary,FALSE,3,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,49.23132,-123.1329,,,,,,,,,
