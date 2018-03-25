@@ -1,31 +1,31 @@
-"","x","y","region","leader","clusters"
-"1",-123.148652800423,49.2673864904732,"Henry Hudson Elementary",FALSE,"1"
-"2",-123.148021965696,49.2696298974881,"Henry Hudson Elementary",TRUE,"1"
-"3",-123.149743818664,49.2683738691506,"Henry Hudson Elementary",FALSE,"1"
-"4",-123.149271081101,49.2683431030758,"Henry Hudson Elementary",FALSE,"1"
-"5",-123.142354212689,49.2695113803729,"Henry Hudson Elementary",FALSE,"6"
-"6",-123.143818182707,49.2659757521581,"Henry Hudson Elementary",TRUE,"2"
-"7",-123.14368860759,49.2642397889745,"Henry Hudson Elementary",FALSE,"2"
-"8",-123.145531983547,49.2631641765672,"Henry Hudson Elementary",FALSE,"2"
-"9",-123.137589940367,49.2607529490559,"Henry Hudson Elementary",TRUE,"3"
-"10",-123.138316801573,49.2608294985849,"Henry Hudson Elementary",FALSE,"3"
-"11",-123.136920723198,49.2607828809187,"Henry Hudson Elementary",TRUE,"4"
-"12",-123.155041479249,49.2741536044307,"Henry Hudson Elementary",FALSE,"1"
-"13",-123.157932671975,49.2700795829657,"Henry Hudson Elementary",FALSE,"1"
-"14",-123.167981340358,49.2718444247256,"Henry Hudson Elementary",FALSE,"1"
-"15",-123.162375211855,49.2738711530486,"Henry Hudson Elementary",FALSE,"1"
-"16",-123.138482679534,49.264952307612,"Henry Hudson Elementary",FALSE,"3"
-"17",-123.133704559187,49.2631349249254,"Henry Hudson Elementary",FALSE,"5"
-"18",-123.133773766339,49.261817246275,"Henry Hudson Elementary",TRUE,"5"
-"19",-123.133724302114,49.2634747930164,"Henry Hudson Elementary",FALSE,"5"
-"20",-123.146241325507,49.2609739304311,"Henry Hudson Elementary",FALSE,"8"
-"21",-123.146971500951,49.2609130804644,"Henry Hudson Elementary",FALSE,"8"
-"22",-123.147338783904,49.2628245608285,"Henry Hudson Elementary",FALSE,"8"
-"23",-123.147355602122,49.262498980416,"Henry Hudson Elementary",FALSE,"8"
-"24",-123.146589684009,49.2627640915058,"Henry Hudson Elementary",FALSE,"8"
-"25",-123.140739710518,49.2720652543392,"Henry Hudson Elementary",TRUE,"6"
-"26",-123.141160292381,49.2724117193155,"Henry Hudson Elementary",TRUE,"7"
-"27",-123.141609180332,49.2724456890137,"Henry Hudson Elementary",FALSE,"7"
-"28",-123.138056726373,49.2688954421301,"Henry Hudson Elementary",FALSE,"6"
-"29",-123.150001915689,49.2614181291607,"Henry Hudson Elementary",FALSE,"8"
-"30",-123.149238178681,49.2615309936014,"Henry Hudson Elementary",TRUE,"8"
+,x,y,region,leader,clusters,V1,V2,V3,V4,V5,V6,V7,V8
+1,-123.1486528,49.26738649,Henry Hudson Elementary,FALSE,1,Customer 6,Customer 30,Customer 11,Customer 25,Customer 9,Customer 26,Customer 2,Customer 18
+2,-123.148022,49.2696299,Henry Hudson Elementary,TRUE,1,Customer 1,Customer 29,Customer 20,Customer 27,Customer 10,,,Customer 17
+3,-123.1497438,49.26837387,Henry Hudson Elementary,FALSE,1,Customer 3,Customer 13,Customer 21,,Customer 7,,,Customer 19
+4,-123.1492711,49.2683431,Henry Hudson Elementary,FALSE,1,Customer 4,Customer 14,Customer 23,,,,,Customer 16
+5,-123.1423542,49.26951138,Henry Hudson Elementary,FALSE,6,,Customer 15,Customer 22,,,,,Customer 28
+6,-123.1438182,49.26597575,Henry Hudson Elementary,TRUE,2,,Customer 12,Customer 24,,,,,Customer 5
+7,-123.1436886,49.26423979,Henry Hudson Elementary,FALSE,2,,,Customer 8,,,,,
+8,-123.145532,49.26316418,Henry Hudson Elementary,FALSE,2,,,,,,,,
+9,-123.1375899,49.26075295,Henry Hudson Elementary,TRUE,3,,,,,,,,
+10,-123.1383168,49.2608295,Henry Hudson Elementary,FALSE,3,,,,,,,,
+11,-123.1369207,49.26078288,Henry Hudson Elementary,TRUE,4,,,,,,,,
+12,-123.1550415,49.2741536,Henry Hudson Elementary,FALSE,1,,,,,,,,
+13,-123.1579327,49.27007958,Henry Hudson Elementary,FALSE,1,,,,,,,,
+14,-123.1679813,49.27184442,Henry Hudson Elementary,FALSE,1,,,,,,,,
+15,-123.1623752,49.27387115,Henry Hudson Elementary,FALSE,1,,,,,,,,
+16,-123.1384827,49.26495231,Henry Hudson Elementary,FALSE,3,,,,,,,,
+17,-123.1337046,49.26313492,Henry Hudson Elementary,FALSE,5,,,,,,,,
+18,-123.1337738,49.26181725,Henry Hudson Elementary,TRUE,5,,,,,,,,
+19,-123.1337243,49.26347479,Henry Hudson Elementary,FALSE,5,,,,,,,,
+20,-123.1462413,49.26097393,Henry Hudson Elementary,FALSE,8,,,,,,,,
+21,-123.1469715,49.26091308,Henry Hudson Elementary,FALSE,8,,,,,,,,
+22,-123.1473388,49.26282456,Henry Hudson Elementary,FALSE,8,,,,,,,,
+23,-123.1473556,49.26249898,Henry Hudson Elementary,FALSE,8,,,,,,,,
+24,-123.1465897,49.26276409,Henry Hudson Elementary,FALSE,8,,,,,,,,
+25,-123.1407397,49.27206525,Henry Hudson Elementary,TRUE,6,,,,,,,,
+26,-123.1411603,49.27241172,Henry Hudson Elementary,TRUE,7,,,,,,,,
+27,-123.1416092,49.27244569,Henry Hudson Elementary,FALSE,7,,,,,,,,
+28,-123.1380567,49.26889544,Henry Hudson Elementary,FALSE,6,,,,,,,,
+29,-123.1500019,49.26141813,Henry Hudson Elementary,FALSE,8,,,,,,,,
+30,-123.1492382,49.26153099,Henry Hudson Elementary,TRUE,8,,,,,,,,

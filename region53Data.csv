@@ -1,31 +1,31 @@
-"","x","y","region","leader","clusters"
-"1",-123.117476963469,49.2135232709099,"Sir Wilfrid Laurier Elementary",TRUE,"1"
-"2",-123.120143820869,49.2107909956057,"Sir Wilfrid Laurier Elementary",FALSE,"1"
-"3",-123.123783704866,49.2095070228298,"Sir Wilfrid Laurier Elementary",FALSE,"2"
-"4",-123.123779431802,49.2097804423005,"Sir Wilfrid Laurier Elementary",FALSE,"2"
-"5",-123.120571732161,49.2103992870313,"Sir Wilfrid Laurier Elementary",FALSE,"1"
-"6",-123.122438358131,49.2108286687779,"Sir Wilfrid Laurier Elementary",FALSE,"2"
-"7",-123.121439719221,49.2117014803408,"Sir Wilfrid Laurier Elementary",FALSE,"1"
-"8",-123.12372175122,49.2092863551339,"Sir Wilfrid Laurier Elementary",FALSE,"3"
-"9",-123.123058818517,49.2083123062795,"Sir Wilfrid Laurier Elementary",FALSE,"3"
-"10",-123.123348415551,49.2086453084857,"Sir Wilfrid Laurier Elementary",FALSE,"3"
-"11",-123.121942597043,49.2086805718894,"Sir Wilfrid Laurier Elementary",FALSE,"3"
-"12",-123.126433292657,49.2097923982654,"Sir Wilfrid Laurier Elementary",FALSE,"2"
-"13",-123.126262413765,49.2094424387201,"Sir Wilfrid Laurier Elementary",TRUE,"2"
-"14",-123.125456375522,49.2076642434918,"Sir Wilfrid Laurier Elementary",TRUE,"3"
-"15",-123.129098063782,49.2076646547815,"Sir Wilfrid Laurier Elementary",FALSE,"8"
-"16",-123.116732314845,49.2184124287501,"Sir Wilfrid Laurier Elementary",TRUE,"4"
-"17",-123.116918009596,49.2180491639662,"Sir Wilfrid Laurier Elementary",TRUE,"5"
-"18",-123.119998453911,49.2191318712615,"Sir Wilfrid Laurier Elementary",TRUE,"6"
-"19",-123.119890266942,49.2188352102222,"Sir Wilfrid Laurier Elementary",FALSE,"6"
-"20",-123.119153031848,49.2163750686684,"Sir Wilfrid Laurier Elementary",FALSE,"5"
-"21",-123.124420740334,49.2152876717533,"Sir Wilfrid Laurier Elementary",FALSE,"7"
-"22",-123.124901871845,49.2191659637788,"Sir Wilfrid Laurier Elementary",TRUE,"7"
-"23",-123.121725065584,49.2191546924562,"Sir Wilfrid Laurier Elementary",FALSE,"6"
-"24",-123.129576609748,49.2164840405018,"Sir Wilfrid Laurier Elementary",FALSE,"9"
-"25",-123.128734284139,49.2185211792802,"Sir Wilfrid Laurier Elementary",FALSE,"7"
-"26",-123.130178380047,49.2097799651353,"Sir Wilfrid Laurier Elementary",FALSE,"8"
-"27",-123.130138140538,49.2092348140698,"Sir Wilfrid Laurier Elementary",FALSE,"8"
-"28",-123.130146180905,49.2095785671721,"Sir Wilfrid Laurier Elementary",FALSE,"8"
-"29",-123.130192183625,49.2090111259871,"Sir Wilfrid Laurier Elementary",TRUE,"8"
-"30",-123.128778577123,49.2121895991942,"Sir Wilfrid Laurier Elementary",TRUE,"9"
+,x,y,region,leader,clusters,V1,V2,V3,V4,V5,V6,V7,V8,V9
+1,-123.117477,49.21352327,Sir Wilfrid Laurier Elementary,TRUE,1,Customer 22,Customer 16,Customer 29,Customer 1,Customer 17,Customer 18,Customer 14,Customer 30,Customer 13
+2,-123.1201438,49.210791,Sir Wilfrid Laurier Elementary,FALSE,1,,Customer 19,Customer 27,Customer 20,,,Customer 9,,Customer 3
+3,-123.1237837,49.20950702,Sir Wilfrid Laurier Elementary,FALSE,2,,Customer 23,Customer 28,,,,Customer 5,,Customer 8
+4,-123.1237794,49.20978044,Sir Wilfrid Laurier Elementary,FALSE,2,,,Customer 26,,,,Customer 11,,Customer 4
+5,-123.1205717,49.21039929,Sir Wilfrid Laurier Elementary,FALSE,1,,,Customer 24,,,,Customer 10,,Customer 6
+6,-123.1224384,49.21082867,Sir Wilfrid Laurier Elementary,FALSE,2,,,Customer 25,,,,Customer 15,,Customer 2
+7,-123.1214397,49.21170148,Sir Wilfrid Laurier Elementary,FALSE,1,,,,,,,Customer 12,,Customer 7
+8,-123.1237218,49.20928636,Sir Wilfrid Laurier Elementary,FALSE,3,,,,,,,,,Customer 21
+9,-123.1230588,49.20831231,Sir Wilfrid Laurier Elementary,FALSE,3,,,,,,,,,
+10,-123.1233484,49.20864531,Sir Wilfrid Laurier Elementary,FALSE,3,,,,,,,,,
+11,-123.1219426,49.20868057,Sir Wilfrid Laurier Elementary,FALSE,3,,,,,,,,,
+12,-123.1264333,49.2097924,Sir Wilfrid Laurier Elementary,FALSE,2,,,,,,,,,
+13,-123.1262624,49.20944244,Sir Wilfrid Laurier Elementary,TRUE,2,,,,,,,,,
+14,-123.1254564,49.20766424,Sir Wilfrid Laurier Elementary,TRUE,3,,,,,,,,,
+15,-123.1290981,49.20766465,Sir Wilfrid Laurier Elementary,FALSE,8,,,,,,,,,
+16,-123.1167323,49.21841243,Sir Wilfrid Laurier Elementary,TRUE,4,,,,,,,,,
+17,-123.116918,49.21804916,Sir Wilfrid Laurier Elementary,TRUE,5,,,,,,,,,
+18,-123.1199985,49.21913187,Sir Wilfrid Laurier Elementary,TRUE,6,,,,,,,,,
+19,-123.1198903,49.21883521,Sir Wilfrid Laurier Elementary,FALSE,6,,,,,,,,,
+20,-123.119153,49.21637507,Sir Wilfrid Laurier Elementary,FALSE,5,,,,,,,,,
+21,-123.1244207,49.21528767,Sir Wilfrid Laurier Elementary,FALSE,7,,,,,,,,,
+22,-123.1249019,49.21916596,Sir Wilfrid Laurier Elementary,TRUE,7,,,,,,,,,
+23,-123.1217251,49.21915469,Sir Wilfrid Laurier Elementary,FALSE,6,,,,,,,,,
+24,-123.1295766,49.21648404,Sir Wilfrid Laurier Elementary,FALSE,9,,,,,,,,,
+25,-123.1287343,49.21852118,Sir Wilfrid Laurier Elementary,FALSE,7,,,,,,,,,
+26,-123.1301784,49.20977997,Sir Wilfrid Laurier Elementary,FALSE,8,,,,,,,,,
+27,-123.1301381,49.20923481,Sir Wilfrid Laurier Elementary,FALSE,8,,,,,,,,,
+28,-123.1301462,49.20957857,Sir Wilfrid Laurier Elementary,FALSE,8,,,,,,,,,
+29,-123.1301922,49.20901113,Sir Wilfrid Laurier Elementary,TRUE,8,,,,,,,,,
+30,-123.1287786,49.2121896,Sir Wilfrid Laurier Elementary,TRUE,9,,,,,,,,,

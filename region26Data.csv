@@ -1,31 +1,31 @@
-"","x","y","region","leader","clusters"
-"1",-123.026247410866,49.2912146319933,"Hastings Community Elementary",FALSE,"4"
-"2",-123.027906771077,49.2896137372985,"Hastings Community Elementary",FALSE,"4"
-"3",-123.026114743367,49.2919237896419,"Hastings Community Elementary",FALSE,"4"
-"4",-123.060585883268,49.2818636162195,"Hastings Community Elementary",FALSE,"1"
-"5",-123.057655966342,49.2827765838009,"Hastings Community Elementary",FALSE,"7"
-"6",-123.057134858286,49.2814264361226,"Hastings Community Elementary",FALSE,"1"
-"7",-123.059405857083,49.2822462814197,"Hastings Community Elementary",TRUE,"1"
-"8",-123.057168558633,49.2860633648889,"Hastings Community Elementary",FALSE,"7"
-"9",-123.057389234025,49.2895630433599,"Hastings Community Elementary",FALSE,"2"
-"10",-123.054183462104,49.291633627028,"Hastings Community Elementary",FALSE,"2"
-"11",-123.055986979173,49.2892350956856,"Hastings Community Elementary",FALSE,"2"
-"12",-123.052915955442,49.2868444098081,"Hastings Community Elementary",TRUE,"2"
-"13",-123.050004686315,49.2890032914949,"Hastings Community Elementary",FALSE,"3"
-"14",-123.047514805456,49.287145263992,"Hastings Community Elementary",FALSE,"3"
-"15",-123.044221856194,49.2865447545653,"Hastings Community Elementary",FALSE,"3"
-"16",-123.046882302516,49.289484566346,"Hastings Community Elementary",TRUE,"3"
-"17",-123.050576775466,49.2904016190127,"Hastings Community Elementary",FALSE,"3"
-"18",-123.045800171835,49.2897707198348,"Hastings Community Elementary",FALSE,"3"
-"19",-123.037852047379,49.2850764487124,"Hastings Community Elementary",FALSE,"4"
-"20",-123.04012140653,49.2902007961385,"Hastings Community Elementary",FALSE,"4"
-"21",-123.037747441224,49.2883290314104,"Hastings Community Elementary",TRUE,"4"
-"22",-123.030601089019,49.2901620430574,"Hastings Community Elementary",FALSE,"4"
-"23",-123.049473971939,49.2813698729799,"Hastings Community Elementary",TRUE,"5"
-"24",-123.050536448637,49.2833042463715,"Hastings Community Elementary",FALSE,"6"
-"25",-123.04960829575,49.2836142628817,"Hastings Community Elementary",TRUE,"6"
-"26",-123.056471836831,49.2829589650402,"Hastings Community Elementary",FALSE,"7"
-"27",-123.056517218208,49.2837633920298,"Hastings Community Elementary",TRUE,"7"
-"28",-123.054729332801,49.2843197254324,"Hastings Community Elementary",FALSE,"7"
-"29",-123.056437613872,49.2833596657999,"Hastings Community Elementary",FALSE,"7"
-"30",-123.056360410627,49.2852448790601,"Hastings Community Elementary",FALSE,"7"
+,x,y,region,leader,clusters,V1,V2,V3,V4,V5,V6,V7
+1,-123.0262474,49.29121463,Hastings Community Elementary,FALSE,4,Customer 23,Customer 25,Customer 27,Customer 16,Customer 7,Customer 21,Customer 12
+2,-123.0279068,49.28961374,Hastings Community Elementary,FALSE,4,,Customer 24,Customer 29,Customer 18,Customer 4,Customer 10,
+3,-123.0261147,49.29192379,Hastings Community Elementary,FALSE,4,,,Customer 26,Customer 17,Customer 6,Customer 20,
+4,-123.0605859,49.28186362,Hastings Community Elementary,FALSE,1,,,Customer 5,Customer 9,,Customer 1,
+5,-123.057656,49.28277658,Hastings Community Elementary,FALSE,7,,,Customer 8,Customer 11,,Customer 3,
+6,-123.0571349,49.28142644,Hastings Community Elementary,FALSE,1,,,Customer 30,Customer 13,,Customer 2,
+7,-123.0594059,49.28224628,Hastings Community Elementary,TRUE,1,,,Customer 28,Customer 14,,Customer 22,
+8,-123.0571686,49.28606336,Hastings Community Elementary,FALSE,7,,,,Customer 15,,Customer 19,
+9,-123.0573892,49.28956304,Hastings Community Elementary,FALSE,2,,,,,,,
+10,-123.0541835,49.29163363,Hastings Community Elementary,FALSE,2,,,,,,,
+11,-123.055987,49.2892351,Hastings Community Elementary,FALSE,2,,,,,,,
+12,-123.052916,49.28684441,Hastings Community Elementary,TRUE,2,,,,,,,
+13,-123.0500047,49.28900329,Hastings Community Elementary,FALSE,3,,,,,,,
+14,-123.0475148,49.28714526,Hastings Community Elementary,FALSE,3,,,,,,,
+15,-123.0442219,49.28654475,Hastings Community Elementary,FALSE,3,,,,,,,
+16,-123.0468823,49.28948457,Hastings Community Elementary,TRUE,3,,,,,,,
+17,-123.0505768,49.29040162,Hastings Community Elementary,FALSE,3,,,,,,,
+18,-123.0458002,49.28977072,Hastings Community Elementary,FALSE,3,,,,,,,
+19,-123.037852,49.28507645,Hastings Community Elementary,FALSE,4,,,,,,,
+20,-123.0401214,49.2902008,Hastings Community Elementary,FALSE,4,,,,,,,
+21,-123.0377474,49.28832903,Hastings Community Elementary,TRUE,4,,,,,,,
+22,-123.0306011,49.29016204,Hastings Community Elementary,FALSE,4,,,,,,,
+23,-123.049474,49.28136987,Hastings Community Elementary,TRUE,5,,,,,,,
+24,-123.0505364,49.28330425,Hastings Community Elementary,FALSE,6,,,,,,,
+25,-123.0496083,49.28361426,Hastings Community Elementary,TRUE,6,,,,,,,
+26,-123.0564718,49.28295897,Hastings Community Elementary,FALSE,7,,,,,,,
+27,-123.0565172,49.28376339,Hastings Community Elementary,TRUE,7,,,,,,,
+28,-123.0547293,49.28431973,Hastings Community Elementary,FALSE,7,,,,,,,
+29,-123.0564376,49.28335967,Hastings Community Elementary,FALSE,7,,,,,,,
+30,-123.0563604,49.28524488,Hastings Community Elementary,FALSE,7,,,,,,,

@@ -1,31 +1,31 @@
-"","x","y","region","leader","clusters"
-"1",-123.086064009704,49.2286539129106,"Sir Sandford Fleming Elementary",FALSE,"3"
-"2",-123.085218818016,49.2279494548868,"Sir Sandford Fleming Elementary",FALSE,"3"
-"3",-123.081566493621,49.2269500609022,"Sir Sandford Fleming Elementary",FALSE,"2"
-"4",-123.082071097076,49.2254183859524,"Sir Sandford Fleming Elementary",FALSE,"3"
-"5",-123.079277955595,49.2285775251972,"Sir Sandford Fleming Elementary",FALSE,"2"
-"6",-123.073818474886,49.227754342269,"Sir Sandford Fleming Elementary",FALSE,"2"
-"7",-123.072724300297,49.2260350353803,"Sir Sandford Fleming Elementary",FALSE,"5"
-"8",-123.0719483675,49.2199447365493,"Sir Sandford Fleming Elementary",TRUE,"1"
-"9",-123.079912795413,49.222915128914,"Sir Sandford Fleming Elementary",FALSE,"2"
-"10",-123.078782429287,49.2232953704235,"Sir Sandford Fleming Elementary",TRUE,"2"
-"11",-123.076299343197,49.2202294246518,"Sir Sandford Fleming Elementary",FALSE,"2"
-"12",-123.078722708884,49.2228706930553,"Sir Sandford Fleming Elementary",FALSE,"2"
-"13",-123.07733274735,49.2216227333404,"Sir Sandford Fleming Elementary",FALSE,"2"
-"14",-123.078237809778,49.2229247430756,"Sir Sandford Fleming Elementary",FALSE,"2"
-"15",-123.073364545441,49.2241306670697,"Sir Sandford Fleming Elementary",FALSE,"1"
-"16",-123.074377254663,49.2251211289315,"Sir Sandford Fleming Elementary",FALSE,"2"
-"17",-123.082534833427,49.2224556729232,"Sir Sandford Fleming Elementary",FALSE,"4"
-"18",-123.08389012508,49.2229060946184,"Sir Sandford Fleming Elementary",TRUE,"3"
-"19",-123.084668709578,49.2249081001866,"Sir Sandford Fleming Elementary",FALSE,"3"
-"20",-123.085839579629,49.2254306646961,"Sir Sandford Fleming Elementary",FALSE,"3"
-"21",-123.087975799046,49.2253929018261,"Sir Sandford Fleming Elementary",FALSE,"3"
-"22",-123.088276860646,49.2271853725271,"Sir Sandford Fleming Elementary",FALSE,"3"
-"23",-123.090698064211,49.2276604909251,"Sir Sandford Fleming Elementary",FALSE,"3"
-"24",-123.090749601732,49.2254688998429,"Sir Sandford Fleming Elementary",FALSE,"3"
-"25",-123.090775710764,49.225471108047,"Sir Sandford Fleming Elementary",FALSE,"3"
-"26",-123.084897626025,49.2225846901527,"Sir Sandford Fleming Elementary",FALSE,"3"
-"27",-123.083059196659,49.2222049422554,"Sir Sandford Fleming Elementary",TRUE,"4"
-"28",-123.068634402896,49.2220923899404,"Sir Sandford Fleming Elementary",TRUE,"5"
-"29",-123.065819570497,49.2230216055729,"Sir Sandford Fleming Elementary",TRUE,"6"
-"30",-123.074711353532,49.2207415658022,"Sir Sandford Fleming Elementary",FALSE,"1"
+,x,y,region,leader,clusters,V1,V2,V3,V4,V5,V6
+1,-123.086064,49.22865391,Sir Sandford Fleming Elementary,FALSE,3,Customer 8,Customer 29,Customer 28,Customer 10,Customer 27,Customer 18
+2,-123.0852188,49.22794945,Sir Sandford Fleming Elementary,FALSE,3,Customer 30,Customer 15,Customer 7,Customer 12,Customer 17,Customer 20
+3,-123.0815665,49.22695006,Sir Sandford Fleming Elementary,FALSE,2,Customer 11,Customer 16,Customer 6,Customer 9,Customer 26,Customer 22
+4,-123.0820711,49.22541839,Sir Sandford Fleming Elementary,FALSE,3,Customer 13,,,,Customer 19,Customer 23
+5,-123.079278,49.22857753,Sir Sandford Fleming Elementary,FALSE,2,Customer 14,,,,Customer 2,Customer 25
+6,-123.0738185,49.22775434,Sir Sandford Fleming Elementary,FALSE,2,,,,,Customer 1,Customer 24
+7,-123.0727243,49.22603504,Sir Sandford Fleming Elementary,FALSE,5,,,,,Customer 5,Customer 21
+8,-123.0719484,49.21994474,Sir Sandford Fleming Elementary,TRUE,1,,,,,Customer 3,Customer 4
+9,-123.0799128,49.22291513,Sir Sandford Fleming Elementary,FALSE,2,,,,,,
+10,-123.0787824,49.22329537,Sir Sandford Fleming Elementary,TRUE,2,,,,,,
+11,-123.0762993,49.22022942,Sir Sandford Fleming Elementary,FALSE,2,,,,,,
+12,-123.0787227,49.22287069,Sir Sandford Fleming Elementary,FALSE,2,,,,,,
+13,-123.0773327,49.22162273,Sir Sandford Fleming Elementary,FALSE,2,,,,,,
+14,-123.0782378,49.22292474,Sir Sandford Fleming Elementary,FALSE,2,,,,,,
+15,-123.0733645,49.22413067,Sir Sandford Fleming Elementary,FALSE,1,,,,,,
+16,-123.0743773,49.22512113,Sir Sandford Fleming Elementary,FALSE,2,,,,,,
+17,-123.0825348,49.22245567,Sir Sandford Fleming Elementary,FALSE,4,,,,,,
+18,-123.0838901,49.22290609,Sir Sandford Fleming Elementary,TRUE,3,,,,,,
+19,-123.0846687,49.2249081,Sir Sandford Fleming Elementary,FALSE,3,,,,,,
+20,-123.0858396,49.22543066,Sir Sandford Fleming Elementary,FALSE,3,,,,,,
+21,-123.0879758,49.2253929,Sir Sandford Fleming Elementary,FALSE,3,,,,,,
+22,-123.0882769,49.22718537,Sir Sandford Fleming Elementary,FALSE,3,,,,,,
+23,-123.0906981,49.22766049,Sir Sandford Fleming Elementary,FALSE,3,,,,,,
+24,-123.0907496,49.2254689,Sir Sandford Fleming Elementary,FALSE,3,,,,,,
+25,-123.0907757,49.22547111,Sir Sandford Fleming Elementary,FALSE,3,,,,,,
+26,-123.0848976,49.22258469,Sir Sandford Fleming Elementary,FALSE,3,,,,,,
+27,-123.0830592,49.22220494,Sir Sandford Fleming Elementary,TRUE,4,,,,,,
+28,-123.0686344,49.22209239,Sir Sandford Fleming Elementary,TRUE,5,,,,,,
+29,-123.0658196,49.22302161,Sir Sandford Fleming Elementary,TRUE,6,,,,,,
+30,-123.0747114,49.22074157,Sir Sandford Fleming Elementary,FALSE,1,,,,,,

@@ -1,31 +1,34 @@
-,x,y,leader,clusters,V1,V2,V3,V4,V5,V6
-1,-123.0474344,49.27253681,FALSE,1,Customer 4,Customer 23,Customer 21,Customer 22,Customer 25,Customer 14
-2,-123.0490018,49.27294238,FALSE,1,Customer 16,,Customer 5,Customer 17,Customer 24,Customer 15
-3,-123.048768,49.27292439,FALSE,1,Customer 7,,Customer 6,Customer 18,Customer 27,Customer 12
-4,-123.0478653,49.27055613,TRUE,1,Customer 3,,Customer 28,,Customer 26,Customer 13
-5,-123.0542201,49.27100329,FALSE,1,Customer 2,,Customer 9,,Customer 30,
-6,-123.0526056,49.2709473,FALSE,1,Customer 29,,Customer 11,,,
-7,-123.0493453,49.27158165,FALSE,1,Customer 1,,Customer 10,,,
-8,-123.0584357,49.27392334,FALSE,6,Customer 19,,Customer 8,,,
-9,-123.0524627,49.2754713,FALSE,6,Customer 20,,,,,
-10,-123.0563425,49.27605588,FALSE,6,,,,,,
-11,-123.0537428,49.27552808,FALSE,6,,,,,,
-12,-123.0617439,49.27680705,FALSE,2,,,,,,
-13,-123.0630018,49.27613745,FALSE,2,,,,,,
-14,-123.0647019,49.27236206,TRUE,2,,,,,,
-15,-123.0682565,49.27188435,FALSE,2,,,,,,
-16,-123.04777,49.26965345,FALSE,1,,,,,,
-17,-123.0606806,49.26705732,FALSE,4,,,,,,
-18,-123.061412,49.26739259,FALSE,3,,,,,,
-19,-123.0582353,49.27161719,FALSE,4,,,,,,
-20,-123.060449,49.2717195,FALSE,5,,,,,,
-21,-123.0607797,49.26866196,TRUE,3,,,,,,
-22,-123.0605246,49.26852,TRUE,4,,,,,,
-23,-123.0617492,49.26905115,TRUE,5,,,,,,
-24,-123.0537929,49.27818412,FALSE,6,,,,,,
-25,-123.0551988,49.27762811,TRUE,6,,,,,,
-26,-123.0493671,49.27639733,FALSE,6,,,,,,
-27,-123.0480283,49.27677916,FALSE,1,,,,,,
-28,-123.0516329,49.27464447,FALSE,6,,,,,,
-29,-123.0478421,49.27349799,FALSE,1,,,,,,
-30,-123.0503082,49.27414167,FALSE,1,,,,,,
+,x,y,region,leader,clusters,V1,V2,V3
+1,-123.0481948,49.27273863,Lord Nelson Elementary,FALSE,2,Customer 30,Customer 18,Customer 25
+2,-123.0471715,49.26970328,Lord Nelson Elementary,FALSE,2,Customer 15,Customer 17,Customer 26
+3,-123.0489596,49.2700478,Lord Nelson Elementary,FALSE,2,Customer 14,Customer 10,Customer 7
+4,-123.0562745,49.27327396,Lord Nelson Elementary,FALSE,3,Customer 16,Customer 9,Customer 24
+5,-123.0550793,49.27187435,Lord Nelson Elementary,FALSE,3,Customer 29,Customer 20,Customer 1
+6,-123.0555298,49.2719554,Lord Nelson Elementary,FALSE,3,Customer 12,Customer 19,Customer 2
+7,-123.0520318,49.27648237,Lord Nelson Elementary,FALSE,2,Customer 13,Customer 22,Customer 11
+8,-123.0536887,49.27688296,Lord Nelson Elementary,FALSE,2,Customer 6,Customer 23,Customer 3
+9,-123.063872,49.27237342,Lord Nelson Elementary,FALSE,1,Customer 5,Customer 21,Customer 27
+10,-123.0685879,49.27265032,Lord Nelson Elementary,FALSE,1,Customer 4,Customer 8,Customer 28
+11,-123.0475976,49.26956779,Lord Nelson Elementary,FALSE,2,,,
+12,-123.058522,49.26731711,Lord Nelson Elementary,FALSE,3,,,
+13,-123.0575801,49.27047407,Lord Nelson Elementary,FALSE,3,,,
+14,-123.0601252,49.26850097,Lord Nelson Elementary,FALSE,3,,,
+15,-123.0599896,49.2685845,Lord Nelson Elementary,FALSE,3,,,
+16,-123.0612144,49.2680603,Lord Nelson Elementary,FALSE,3,,,
+17,-123.065802,49.26979352,Lord Nelson Elementary,FALSE,1,,,
+18,-123.0672249,49.2695913,Lord Nelson Elementary,TRUE,1,,,
+19,-123.0656076,49.2774983,Lord Nelson Elementary,FALSE,1,,,
+20,-123.0656077,49.27754166,Lord Nelson Elementary,FALSE,1,,,
+21,-123.052562,49.27758987,Lord Nelson Elementary,FALSE,2,,,
+22,-123.0577301,49.27804971,Lord Nelson Elementary,FALSE,2,,,
+23,-123.0578083,49.27785944,Lord Nelson Elementary,FALSE,2,,,
+24,-123.0498728,49.27631665,Lord Nelson Elementary,FALSE,2,,,
+25,-123.0510372,49.27589879,Lord Nelson Elementary,TRUE,2,,,
+26,-123.0514275,49.27580504,Lord Nelson Elementary,FALSE,2,,,
+27,-123.0554638,49.26951852,Lord Nelson Elementary,FALSE,3,,,
+28,-123.0560311,49.2695142,Lord Nelson Elementary,FALSE,3,,,
+29,-123.0593213,49.26817408,Lord Nelson Elementary,FALSE,3,,,
+30,-123.0580875,49.26881448,Lord Nelson Elementary,TRUE,3,,,
+,,,,,,,,
+,,,,,,,,
+,,49.2726,-123.0592,,,,,
